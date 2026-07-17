@@ -13,6 +13,7 @@
 ```bash
 ./scripts/validate.sh
 ./scripts/smoke-test.sh
+./scripts/compat-test.sh
 ```
 
 ## Publication bar

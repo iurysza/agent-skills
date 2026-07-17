@@ -13,7 +13,7 @@ This repository is the canonical source for Iury Souza's shareable Agent Skills.
 - Bundle only small self-contained scripts. Real CLIs belong in their own package or repository.
 - Preserve upstream attribution and per-skill licenses.
 - Do not copy a third-party skill merely to rebrand it. Contribute upstream or document the source.
-- Run `./scripts/validate.sh` and `./scripts/smoke-test.sh` before committing.
+- Run `./scripts/validate.sh`, `./scripts/smoke-test.sh`, and `./scripts/compat-test.sh` before committing.
 
 ## Releases
 

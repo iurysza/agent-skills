@@ -2,7 +2,7 @@
 name: skill-cleaner
 description: Audit installed Agent Skills for duplicate copies, unused candidates, oversized descriptions, loaded roots, and prompt-budget pressure. Use when cleaning or debugging skill collections across common agent runtimes.
 license: MIT
-compatibility: Requires Node.js 22.6 or newer. Usage-history analysis currently supports Codex and OpenClaw logs.
+compatibility: Requires Node.js 18 or newer. Usage-history analysis currently supports Codex and OpenClaw logs.
 ---
 
 # Skill Cleaner
@@ -14,17 +14,17 @@ Use this when trimming skill prompt budget, finding duplicate skills, auditing e
 1. Resolve this skill's directory from the loaded `SKILL.md`, then run its bundled analyzer:
 
 ```bash
-./scripts/skill-cleaner.ts --no-logs
+node ./scripts/skill-cleaner.mjs --no-logs
 ```
 
 Useful variants:
 
 ```bash
-./scripts/skill-cleaner.ts --months 3
-./scripts/skill-cleaner.ts --months 6 --max-log-mb 800 --deep-logs
-./scripts/skill-cleaner.ts --context-tokens 200000 --budget-percent 2 --no-logs
-./scripts/skill-cleaner.ts --root /path/to/another/skills-directory --no-logs
-./scripts/skill-cleaner.ts --json --no-logs
+node ./scripts/skill-cleaner.mjs --months 3
+node ./scripts/skill-cleaner.mjs --months 6 --max-log-mb 800 --deep-logs
+node ./scripts/skill-cleaner.mjs --context-tokens 200000 --budget-percent 2 --no-logs
+node ./scripts/skill-cleaner.mjs --root /path/to/another/skills-directory --no-logs
+node ./scripts/skill-cleaner.mjs --json --no-logs
 ```
 
 2. Read the report in this order:

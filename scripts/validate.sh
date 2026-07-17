@@ -29,6 +29,9 @@ if [[ "$skill_count" -eq 0 ]]; then
   exit 1
 fi
 
+node --check skills/skill-cleaner/scripts/skill-cleaner.mjs
+node scripts/validate-skills-config.mjs skills.sh.json skills
+
 if grep -RIEna '(/Users/[^/[:space:]]+|/home/[^/[:space:]]+|/var/folders/[^[:space:]]+|[A-Za-z]:\\Users\\[^\\[:space:]]+)' skills; then
   printf 'error: personal absolute path found\n' >&2
   exit 1
