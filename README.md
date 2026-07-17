@@ -2,6 +2,8 @@
 
 Portable [Agent Skills](https://agentskills.io) by Iury Souza.
 
+[![skills.sh](https://skills.sh/b/iurysza/agent-skills)](https://skills.sh/iurysza/agent-skills)
+
 ## Install
 
 ```bash
