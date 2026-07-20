@@ -1,0 +1,8 @@
+{
+  "name": "audio-transcribe-skill",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "1.38.0"
+  }
+}
