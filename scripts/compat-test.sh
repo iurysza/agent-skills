@@ -18,7 +18,10 @@ targets=(
   'opencode:.agents/skills'
   'pi:.pi/skills'
 )
-skills=(tool-install strunk-writing-quality skill-cleaner)
+skills=()
+while IFS= read -r skill; do
+  skills+=("$skill")
+done < <(find "$repo/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -exec dirname {} \; | xargs -n1 basename | sort)
 
 for target in "${targets[@]}"; do
   IFS=: read -r agent destination <<<"$target"

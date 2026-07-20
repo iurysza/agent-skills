@@ -44,12 +44,12 @@ if [[ -n "$vendored" ]]; then
 fi
 
 npx -y skills@1.5.19 add "$repo" --list > "$list_file"
-for skill in tool-install strunk-writing-quality skill-cleaner; do
+while IFS= read -r skill; do
   if ! grep -Fq "$skill" "$list_file"; then
     printf 'error: Vercel CLI did not discover %s\n' "$skill" >&2
     exit 1
   fi
-done
+done < <(find skills -mindepth 2 -maxdepth 2 -name SKILL.md -exec dirname {} \; | xargs -n1 basename | sort)
 
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks dir "$repo" --no-banner --redact
