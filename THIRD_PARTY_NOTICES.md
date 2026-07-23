@@ -1,21 +1,23 @@
 # Third-party notices
 
-## Superpowers brainstorming skill
+## Matt Pocock skills
 
-`brainstorming` adapts the MIT-licensed `brainstorming` skill from `obra/superpowers`, copyright 2025 Jesse Vincent. The repository-wide MIT license preserves that notice alongside Iury Souza's 2026 adaptation copyright. The adaptation removes Superpowers-specific dependencies and adds portable scope, trade-off, and handoff guidance.
+`grilling`, `grill-me`, `domain-modeling`, `grill-with-docs`, and `tdd` are synchronized from [mattpocock/skills](https://github.com/mattpocock/skills), copyright 2026 Matt Pocock and licensed under the MIT License.
 
-- Source: <https://github.com/obra/superpowers/tree/main/skills/brainstorming>
-- License: <https://github.com/obra/superpowers/blob/main/LICENSE>
+The synchronization removes unsupported invocation metadata and one reference to an unbundled review skill so the selected bundle remains valid and self-contained.
+
+- Source: <https://github.com/mattpocock/skills>
+- License: <https://github.com/mattpocock/skills/blob/main/LICENSE>
 
 ## The Elements of Style
 
-`strunk-writing-quality` adapts principles and examples from *The Elements of Style* by William Strunk Jr., first published in 1918. The 1918 edition is in the public domain in the United States.
+`strunk-writing-quality` adapts principles and examples from *The Elements of Style* by William Strunk Jr., first published in 1918 and in the public domain in the United States.
 
 Source: <https://www.gutenberg.org/ebooks/37134>
 
 ## GOV.UK content design guidance
 
-`skills/strunk-writing-quality/references/report-writing-style.md` adapts GOV.UK and Government Digital Service content design guidance.
+`skills/strunk-writing-quality/references/report-writing-style.md` adapts GOV.UK and Government Digital Service content guidance.
 
 Contains public sector information licensed under the Open Government Licence v3.0.
 
