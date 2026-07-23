@@ -5,18 +5,12 @@ This repository is the canonical source for Iury Souza's shareable Agent Skills.
 ## Rules
 
 - Keep skills under `skills/<name>/SKILL.md`.
-- Match frontmatter `name` to the parent directory.
+- Match frontmatter `name` to the directory.
 - Use only Agent Skills specification fields.
-- Keep `SKILL.md` concise; move detail to one-level-deep `references/` files.
-- Use paths relative to the skill directory. Never add personal absolute paths.
-- Do not commit secrets, generated artifacts, auth state, caches, virtual environments, or `node_modules`.
-- Bundle only small self-contained scripts. Real CLIs belong in their own package or repository.
-- Preserve upstream attribution and per-skill licenses.
-- Do not copy a third-party skill merely to rebrand it. Contribute upstream or document the source.
-- Run `./scripts/validate.sh`, `./scripts/smoke-test.sh`, and `./scripts/compat-test.sh` before committing.
+- Use relative paths and never commit personal state, secrets, caches, virtual environments, generated media, or `node_modules`.
+- Keep bundled scripts self-contained; real CLIs belong in their own repositories.
+- Preserve upstream attribution in `THIRD_PARTY_NOTICES.md` and the root `LICENSE`.
+- Do not edit Matt Pocock's synced skills by hand. Run `scripts/sync-matt-skills.sh`.
+- Run `./scripts/check.sh` before committing.
 
-## Releases
-
-- `main` is rolling.
-- Tags are immutable repository-wide SemVer releases.
-- Keep the repository private until a reviewed tagged release is ready for public use.
+`main` is a rolling catalog. Do not create version tags or GitHub releases.

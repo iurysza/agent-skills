@@ -2,22 +2,21 @@
 
 ## Add or change a skill
 
-1. Put the skill in `skills/<kebab-case-name>/SKILL.md`.
-2. Keep the frontmatter name identical to the directory.
-3. Describe both what the skill does and when to use it.
-4. Add `license` and `compatibility` when applicable.
-5. Use relative paths for bundled files.
-6. Add provenance to `THIRD_PARTY_NOTICES.md` and a local notice when adapting external material.
-7. Run:
+1. Put it under `skills/<kebab-case-name>/SKILL.md`.
+2. Match the frontmatter name to the directory.
+3. Describe what it does and when it should trigger.
+4. Use relative paths for bundled files.
+5. Record copied or adapted material in `THIRD_PARTY_NOTICES.md`.
+6. Run `./scripts/check.sh`.
+
+## Synced skills
+
+Do not edit Matt Pocock's synced skills by hand. Update them with:
 
 ```bash
-./scripts/validate.sh
-./scripts/smoke-test.sh
-./scripts/compat-test.sh
+./scripts/sync-matt-skills.sh
 ```
 
-## Publication bar
+Set `MATT_SKILLS_REF` to sync a specific branch, tag, or commit.
 
-A skill is publishable only when it is portable, useful outside one machine, free of private state, spec-valid, licensed, and tested through the Vercel CLI discovery path.
-
-Third-party skills should stay upstream unless this repository carries a meaningful, clearly attributed adaptation.
+The repository tracks a rolling `main` branch and does not publish versioned releases.

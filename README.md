@@ -1,56 +1,62 @@
-# agent-skills
+# Skills
 
-Portable [Agent Skills](https://agentskills.io) by Iury Souza.
+Portable coding-agent skills for engineering, architecture, media, writing, and agent workflows.
 
 [![skills.sh](https://skills.sh/b/iurysza/agent-skills)](https://skills.sh/iurysza/agent-skills)
 
 ## Install
 
 ```bash
-# Vercel skills CLI
-npx skills add iurysza/agent-skills
-npx skills add iurysza/agent-skills --list
-npx skills add iurysza/agent-skills --skill tool-install -g
-npx skills add 'iurysza/agent-skills#v0.2.0' --skill tool-install -g
-
-# GitHub CLI 2.96+
-gh skill install iurysza/agent-skills tool-install@v0.2.0 --agent universal --scope user
+npx skills@latest add iurysza/agent-skills
+# or
+gh skill install iurysza/agent-skills --all --agent universal --scope user
 ```
 
-`npx skills` requires Node.js 22.20+. Use `gh skill` without Node.js.
-Update unpinned installs with `npx skills update` or `gh skill update`.
+Installs follow `main`; there are no versioned releases.
 
-## Skills
+## Included skills
 
-### Planning and architecture
+| Skill | Invocation | Description |
+| --- | --- | --- |
+| [`audio-transcribe`](skills/audio-transcribe/SKILL.md) | model-invoked | Transcribe local audio with Gemini. |
+| [`bro`](skills/bro/SKILL.md) | user-invoked | Restate the previous response plainly and concisely. |
+| [`chatgpt-imagegen`](skills/chatgpt-imagegen/SKILL.md) | model-invoked | Generate and edit images with OpenAI. |
+| [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Correct-by-construction TypeScript engineering standards. |
+| [`deslopify`](skills/deslopify/SKILL.md) | model-invoked | Remove generic AI mannerisms while preserving voice. |
+| [`gemini-tts`](skills/gemini-tts/SKILL.md) | model-invoked | Turn text and Markdown into spoken MP3 audio. |
+| [`skill-cleaner`](skills/skill-cleaner/SKILL.md) | model-invoked | Audit skill roots, duplicates, usage, and prompt cost. |
+| [`strunk-writing-quality`](skills/strunk-writing-quality/SKILL.md) | model-invoked | Edit prose for clarity and concision. |
+| [`tech-spec`](skills/tech-spec/SKILL.md) | user-invoked | Produce a typed call-stack architecture handoff. |
+| [`tool-install`](skills/tool-install/SKILL.md) | model-invoked | Safely install or update tools. |
 
-- [**adr**](skills/adr/SKILL.md) — create and maintain concise Architecture Decision Records
-- [**brainstorming**](skills/brainstorming/SKILL.md) — turn early ideas into approved designs before implementation
+## Synced from Matt Pocock
 
-### Media
+These skills are copied from [mattpocock/skills](https://github.com/mattpocock/skills) so the collection remains self-contained. Do not edit them by hand; re-sync instead.
 
-- [**audio-transcribe**](skills/audio-transcribe/SKILL.md) — transcribe local audio with Gemini; Bun 1.1+ and ffmpeg
-- [**chatgpt-imagegen**](skills/chatgpt-imagegen/SKILL.md) — generate and edit images with OpenAI; Python 3.10+
-- [**gemini-tts**](skills/gemini-tts/SKILL.md) — turn text and Markdown into spoken MP3 audio; Python 3.10+ and ffmpeg
+| Skill | Invocation | Description |
+| --- | --- | --- |
+| [`grilling`](skills/grilling/SKILL.md) | model-invoked | Relentless one-question-at-a-time interview loop. |
+| [`grill-me`](skills/grill-me/SKILL.md) | user-invoked | Start a grilling session. |
+| [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain project language and durable architectural decisions. |
+| [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | user-invoked | Grill while maintaining the glossary and ADRs. |
+| [`tdd`](skills/tdd/SKILL.md) | model-invoked | Vertical red-green test-driven development. |
 
-### Tooling
-
-- [**skill-cleaner**](skills/skill-cleaner/SKILL.md) — audit skill roots, duplicates, usage, and prompt cost; Node.js 18+
-- [**tool-install**](skills/tool-install/SKILL.md) — safely install or upgrade tools
-
-### Writing
-
-- [**deslopify**](skills/deslopify/SKILL.md) — remove generic AI mannerisms while preserving the author's voice
-- [**strunk-writing-quality**](skills/strunk-writing-quality/SKILL.md) — edit prose for clarity and concision
-
-## Validate and publish
+Re-sync from upstream `main`:
 
 ```bash
-./scripts/validate.sh
-./scripts/smoke-test.sh
-./scripts/compat-test.sh
-gh skill publish --dry-run
-gh skill publish --tag vX.Y.Z
+./scripts/sync-matt-skills.sh
 ```
 
-MIT licensed. See [third-party notices](THIRD_PARTY_NOTICES.md) and [security policy](SECURITY.md).
+Sync a specific branch, tag, or commit:
+
+```bash
+MATT_SKILLS_REF=<sha-or-ref> ./scripts/sync-matt-skills.sh
+```
+
+## Check
+
+```bash
+./scripts/check.sh
+```
+
+MIT licensed. See [third-party notices](THIRD_PARTY_NOTICES.md).
