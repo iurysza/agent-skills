@@ -16,40 +16,47 @@ Installs follow `main`; there are no versioned releases.
 
 ## Included skills
 
+### Development workflows
+
 | Skill | Invocation | Description |
 | --- | --- | --- |
-| [`audio-transcribe`](skills/audio-transcribe/SKILL.md) | model-invoked | Transcribe local audio with Gemini. |
 | [`brainstorming`](skills/brainstorming/SKILL.md) | model-invoked | Explore and approve a design direction before implementation. |
-| [`bro`](skills/bro/SKILL.md) | user-invoked | Restate the previous response plainly and concisely. |
-| [`chatgpt-imagegen`](skills/chatgpt-imagegen/SKILL.md) | model-invoked | Generate and edit images with OpenAI. |
 | [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Language-neutral correct-by-construction engineering standards. |
-| [`deslopify`](skills/deslopify/SKILL.md) | model-invoked | Remove generic AI mannerisms while preserving voice. |
 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain domain language, diagrams, and durable decisions under `ai-artifacts/`. |
-| [`gemini-tts`](skills/gemini-tts/SKILL.md) | model-invoked | Turn text and Markdown into spoken MP3 audio. |
 | [`goal`](skills/goal/SKILL.md) | user-invoked | Execute an approved goal package. |
 | [`setup-goal`](skills/setup-goal/SKILL.md) | model-invoked | Extract intent and produce an approved execution package. |
 | [`skill-cleaner`](skills/skill-cleaner/SKILL.md) | model-invoked | Audit skill roots, duplicates, usage, and prompt cost. |
-| [`strunk-writing-quality`](skills/strunk-writing-quality/SKILL.md) | model-invoked | Edit prose for clarity and concision. |
+| [`tdd`](skills/tdd/SKILL.md) | model-invoked | Vertical red-green test-driven development. |
 | [`tech-spec`](skills/tech-spec/SKILL.md) | user-invoked | Produce a typed call-stack architecture handoff. |
 | [`tool-install`](skills/tool-install/SKILL.md) | model-invoked | Safely install or update tools. |
+| [`type-breakdown`](skills/type-breakdown/SKILL.md) | user-invoked | Trace a code path through its types, effects, and errors. |
 
-## Synced from Matt Pocock
-
-The TDD skill is copied from [mattpocock/skills](https://github.com/mattpocock/skills) so the collection remains self-contained. Do not edit it by hand; re-sync instead.
+### Writing
 
 | Skill | Invocation | Description |
 | --- | --- | --- |
-| [`tdd`](skills/tdd/SKILL.md) | model-invoked | Vertical red-green test-driven development. |
+| [`bro`](skills/bro/SKILL.md) | user-invoked | Restate the previous response plainly and concisely. |
+| [`deslopify`](skills/deslopify/SKILL.md) | model-invoked | Remove generic AI mannerisms while preserving voice. |
+| [`rephrase`](skills/rephrase/SKILL.md) | user-invoked | Tighten rough text while preserving sentiment and voice. |
+| [`strunk-writing-quality`](skills/strunk-writing-quality/SKILL.md) | model-invoked | Edit prose for clarity and concision. |
 
-Re-sync from upstream `main`:
+### Media
+
+| Skill | Invocation | Description |
+| --- | --- | --- |
+| [`audio-transcribe`](skills/audio-transcribe/SKILL.md) | model-invoked | Transcribe local audio with Gemini. |
+| [`chatgpt-imagegen`](skills/chatgpt-imagegen/SKILL.md) | model-invoked | Generate and edit images with OpenAI. |
+| [`gemini-tts`](skills/gemini-tts/SKILL.md) | model-invoked | Turn text and Markdown into spoken MP3 audio. |
+
+## Upstream sync
+
+`tdd` is copied from [mattpocock/skills](https://github.com/mattpocock/skills). Do not edit it by hand; re-sync instead.
 
 ```bash
+# Upstream main
 ./scripts/sync-matt-skills.sh
-```
 
-Sync a specific branch, tag, or commit:
-
-```bash
+# Specific branch, tag, or commit
 MATT_SKILLS_REF=<sha-or-ref> ./scripts/sync-matt-skills.sh
 ```
 
