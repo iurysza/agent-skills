@@ -13,10 +13,6 @@ tar -xzf "$temp/source.tar.gz" -C "$temp"
 source_root="$(find "$temp" -mindepth 1 -maxdepth 1 -type d -print -quit)"
 
 skills=(
-  "skills/productivity/grilling:grilling"
-  "skills/productivity/grill-me:grill-me"
-  "skills/engineering/domain-modeling:domain-modeling"
-  "skills/engineering/grill-with-docs:grill-with-docs"
   "skills/engineering/tdd:tdd"
 )
 

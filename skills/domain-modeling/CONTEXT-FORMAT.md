@@ -1,16 +1,25 @@
 # CONTEXT.md Format
 
+Domain context artifacts live under `ai-artifacts/`.
+
 ## Structure
 
-```md
+````md
 # {Context Name}
 
-{One or two sentence description of what this context is and why it exists.}
+{One or two sentences describing what this context is and why it exists.}
+
+## Model
+
+```mermaid
+flowchart LR
+  Order --> Invoice
+```
 
 ## Language
 
 **Order**:
-{A one or two sentence description of the term}
+{A one or two sentence definition of the term.}
 _Avoid_: Purchase, transaction
 
 **Invoice**:
@@ -20,22 +29,56 @@ _Avoid_: Bill, payment request
 **Customer**:
 A person or organization that places orders.
 _Avoid_: Client, buyer, account
-```
+````
+
+The `Model` section is optional when a context is genuinely simple. When relationships, boundaries, states, or flows matter, include either an embedded Mermaid diagram or ASCII art. Never create a standalone diagram file.
 
 ## Rules
 
-- **Be opinionated.** When multiple words exist for the same concept, pick the best one and list the others under `_Avoid_`.
-- **Keep definitions tight.** One or two sentences max. Define what it IS, not what it does.
-- **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
-- **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
+- **Be opinionated.** When multiple words exist for the same concept, pick the canonical term and list alternatives under `_Avoid_`.
+- **Keep definitions tight.** Use one or two sentences. Define what a concept is, not its implementation.
+- **Include only context-specific terms.** General programming concepts do not belong merely because the project uses them.
+- **Group related terms** when natural clusters emerge; otherwise keep one flat language list.
+- **Keep diagrams conceptual.** Show domain relationships, states, flows, and boundaries—not classes, frameworks, databases, or deployment topology.
+- **Use glossary terms in diagrams.** A diagram must reinforce the ubiquitous language rather than introduce synonyms.
 
-## Single vs multi-context repos
+## Single-context repositories
 
-**Single context (most repos):** One `CONTEXT.md` at the repo root.
+Use one glossary:
 
-**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+```text
+ai-artifacts/CONTEXT.md
+```
 
-```md
+System-wide ADRs live at:
+
+```text
+ai-artifacts/docs/adr/
+```
+
+## Multiple-context repositories
+
+Use a context map and context-specific glossaries:
+
+```text
+ai-artifacts/
+├── CONTEXT-MAP.md
+├── docs/
+│   └── adr/
+└── src/
+    ├── ordering/
+    │   ├── CONTEXT.md
+    │   └── docs/adr/
+    └── billing/
+        ├── CONTEXT.md
+        └── docs/adr/
+```
+
+`ai-artifacts/src/` mirrors context ownership in the application source tree. It contains project knowledge, not application code.
+
+A context map lists contexts, where their artifacts live, and how they relate:
+
+````md
 # Context Map
 
 ## Contexts
@@ -46,15 +89,19 @@ _Avoid_: Client, buyer, account
 
 ## Relationships
 
-- **Ordering → Fulfillment**: Ordering emits `OrderPlaced` events; Fulfillment consumes them to start picking
-- **Fulfillment → Billing**: Fulfillment emits `ShipmentDispatched` events; Billing consumes them to generate invoices
-- **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
+```mermaid
+flowchart LR
+  Ordering -->|OrderPlaced| Fulfillment
+  Fulfillment -->|ShipmentDispatched| Billing
 ```
 
-The skill infers which structure applies:
+- **Ordering → Fulfillment**: Ordering emits `OrderPlaced`; Fulfillment starts picking.
+- **Fulfillment → Billing**: Fulfillment emits `ShipmentDispatched`; Billing generates an invoice.
+````
 
-- If `CONTEXT-MAP.md` exists, read it to find contexts
-- If only a root `CONTEXT.md` exists, single context
-- If neither exists, create a root `CONTEXT.md` lazily when the first term is resolved
+## Detecting the structure
 
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+- If `ai-artifacts/CONTEXT-MAP.md` exists, read it to locate contexts.
+- If only `ai-artifacts/CONTEXT.md` exists, treat the repository as one context.
+- If neither exists, create `ai-artifacts/CONTEXT.md` lazily when the first term is resolved.
+- When multiple contexts exist, infer the relevant context from the work. Ask only when ownership remains ambiguous after inspecting the codebase.

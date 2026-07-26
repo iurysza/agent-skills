@@ -2,12 +2,20 @@
 
 ## Matt Pocock skills
 
-`grilling`, `grill-me`, `domain-modeling`, `grill-with-docs`, and `tdd` are synchronized from [mattpocock/skills](https://github.com/mattpocock/skills), copyright 2026 Matt Pocock and licensed under the MIT License.
+`tdd` is synchronized from [mattpocock/skills](https://github.com/mattpocock/skills). `domain-modeling` is an adapted local fork. Both are copyright 2026 Matt Pocock and licensed under the MIT License.
 
-The synchronization removes unsupported invocation metadata and one reference to an unbundled review skill so the selected bundle remains valid and self-contained.
+The TDD synchronization removes unsupported invocation metadata and applies the catalog's refactoring wording.
 
 - Source: <https://github.com/mattpocock/skills>
 - License: <https://github.com/mattpocock/skills/blob/main/LICENSE>
+
+## Plannotator goal workflow
+
+`setup-goal` adapts the goal-package workflow from [backnotprop/plannotator](https://github.com/backnotprop/plannotator). The core skill is tool-agnostic; its optional adapter preserves compatibility with Plannotator's interview, fact-review, and plan-gating commands.
+
+Plannotator is licensed under MIT OR Apache-2.0.
+
+- Source: <https://github.com/backnotprop/plannotator>
 
 ## The Elements of Style
 

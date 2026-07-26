@@ -8,12 +8,12 @@ license: MIT
 
 A tech spec is a typed architecture handoff. Types and call stacks define what changes; prose explains why.
 
-This workflow is design-only. Do not implement. Return the spec inline unless the user asks for a file.
+This workflow is design-only. Do not implement. Write durable specs to `ai-artifacts/specs/YYYY-MM-DD-<topic>.md` unless the user or repository explicitly requires another location.
 
 ## Choose the path
 
 - **Convert context:** use when conversation, docs, and code already define the problem and constraints.
-- **Grill first:** use when important requirements, boundaries, or acceptance criteria remain unresolved.
+- **Set up the goal first:** use the `setup-goal` skill when important requirements, boundaries, or acceptance criteria remain unresolved.
 
 Answer repository questions by inspecting the repository. Ask the user only for decisions.
 

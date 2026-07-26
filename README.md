@@ -19,11 +19,15 @@ Installs follow `main`; there are no versioned releases.
 | Skill | Invocation | Description |
 | --- | --- | --- |
 | [`audio-transcribe`](skills/audio-transcribe/SKILL.md) | model-invoked | Transcribe local audio with Gemini. |
+| [`brainstorming`](skills/brainstorming/SKILL.md) | model-invoked | Explore and approve a design direction before implementation. |
 | [`bro`](skills/bro/SKILL.md) | user-invoked | Restate the previous response plainly and concisely. |
 | [`chatgpt-imagegen`](skills/chatgpt-imagegen/SKILL.md) | model-invoked | Generate and edit images with OpenAI. |
-| [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Correct-by-construction TypeScript engineering standards. |
+| [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Language-neutral correct-by-construction engineering standards. |
 | [`deslopify`](skills/deslopify/SKILL.md) | model-invoked | Remove generic AI mannerisms while preserving voice. |
+| [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain domain language, diagrams, and durable decisions under `ai-artifacts/`. |
 | [`gemini-tts`](skills/gemini-tts/SKILL.md) | model-invoked | Turn text and Markdown into spoken MP3 audio. |
+| [`goal`](skills/goal/SKILL.md) | user-invoked | Execute an approved goal package. |
+| [`setup-goal`](skills/setup-goal/SKILL.md) | model-invoked | Extract intent and produce an approved execution package. |
 | [`skill-cleaner`](skills/skill-cleaner/SKILL.md) | model-invoked | Audit skill roots, duplicates, usage, and prompt cost. |
 | [`strunk-writing-quality`](skills/strunk-writing-quality/SKILL.md) | model-invoked | Edit prose for clarity and concision. |
 | [`tech-spec`](skills/tech-spec/SKILL.md) | user-invoked | Produce a typed call-stack architecture handoff. |
@@ -31,14 +35,10 @@ Installs follow `main`; there are no versioned releases.
 
 ## Synced from Matt Pocock
 
-These skills are copied from [mattpocock/skills](https://github.com/mattpocock/skills) so the collection remains self-contained. Do not edit them by hand; re-sync instead.
+The TDD skill is copied from [mattpocock/skills](https://github.com/mattpocock/skills) so the collection remains self-contained. Do not edit it by hand; re-sync instead.
 
 | Skill | Invocation | Description |
 | --- | --- | --- |
-| [`grilling`](skills/grilling/SKILL.md) | model-invoked | Relentless one-question-at-a-time interview loop. |
-| [`grill-me`](skills/grill-me/SKILL.md) | user-invoked | Start a grilling session. |
-| [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain project language and durable architectural decisions. |
-| [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | user-invoked | Grill while maintaining the glossary and ADRs. |
 | [`tdd`](skills/tdd/SKILL.md) | model-invoked | Vertical red-green test-driven development. |
 
 Re-sync from upstream `main`:

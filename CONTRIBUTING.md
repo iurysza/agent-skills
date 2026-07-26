@@ -9,9 +9,9 @@
 5. Record copied or adapted material in `THIRD_PARTY_NOTICES.md`.
 6. Run `./scripts/check.sh`.
 
-## Synced skills
+## Synced skill
 
-Do not edit Matt Pocock's synced skills by hand. Update them with:
+Do not edit the synchronized `tdd` skill by hand. Update it with:
 
 ```bash
 ./scripts/sync-matt-skills.sh
