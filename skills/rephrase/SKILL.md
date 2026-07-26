@@ -1,7 +1,6 @@
 ---
 name: rephrase
-description: Proofread and tighten voice-transcribed or poorly written text while preserving its sentiment and the author's voice. Use only when the user explicitly asks to rephrase, proofread, or tighten supplied text.
-license: MIT
+description: Proofreads and tightens supplied text while preserving meaning and voice. Use only when the user explicitly asks to rephrase, proofread, or tighten text.
 ---
 
 # Rephrase

@@ -1,7 +1,6 @@
 ---
 name: audio-transcribe
-description: Transcribe local audio with Gemini, including speaker labels and timestamps. Use for podcasts, interviews, lectures, meetings, voice notes, or requests to convert MP3, WAV, M4A, OGG, FLAC, or WebM audio into Markdown.
-license: MIT
+description: Transcribes local audio into Markdown with Gemini, including speaker labels and timestamps. Use for interviews, meetings, lectures, podcasts, voice notes, and similar recordings.
 compatibility: Requires Bun 1.1+, ffmpeg/ffprobe, network access, and a Gemini API key.
 ---
 

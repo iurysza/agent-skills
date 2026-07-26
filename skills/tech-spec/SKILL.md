@@ -1,7 +1,6 @@
 ---
 name: tech-spec
-description: Produce an implementation-ready technical specification using typed contracts, concrete module boundaries, call stacks, data flows, alternatives, file changes, and vertical red-green test slices. Use when the user asks for a tech spec or architecture handoff.
-license: MIT
+description: Produces implementation-ready technical specifications with concrete contracts, module boundaries, data flows, file changes, and test slices. Use for architecture or implementation handoffs.
 ---
 
 # Technical Specification

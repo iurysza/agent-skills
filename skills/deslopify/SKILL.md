@@ -1,8 +1,6 @@
 ---
 name: deslopify
-description: Edit drafts that sound generic, inflated, repetitive, or conspicuously machine-written. Use when the user asks to deslopify, remove AI mannerisms, make prose sound natural, or preserve their voice while tightening a generated draft.
-license: MIT
-compatibility: Requires read access to the draft; no external tools or services.
+description: Removes generic AI mannerisms, inflated phrasing, and repetition from prose while preserving the author's voice. Use when the user asks to deslopify or naturalize a draft.
 ---
 
 # Deslopify

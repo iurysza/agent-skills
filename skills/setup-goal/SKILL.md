@@ -1,7 +1,6 @@
 ---
 name: setup-goal
-description: Turn an idea or objective into an approved goal package under ai-artifacts. Use when work needs intent extraction, scope clarification, testable facts, an implementation plan, and an explicit handoff before execution.
-license: MIT
+description: Turns an idea into an approved goal package under ai-artifacts. Use when work needs clarified intent, scope, accepted facts, an implementation plan, and an explicit handoff.
 ---
 
 # Setup Goal

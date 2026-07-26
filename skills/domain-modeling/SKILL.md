@@ -1,6 +1,6 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain model inside ai-artifacts. Use when the user wants to pin down domain terminology or a ubiquitous language, map contexts, record an architectural decision, or maintain the domain model with embedded ASCII or Mermaid diagrams.
+description: Maintains project domain language, context maps, diagrams, and architectural decisions under ai-artifacts. Use when clarifying terminology, bounded contexts, or durable design decisions.
 ---
 
 # Domain Modeling

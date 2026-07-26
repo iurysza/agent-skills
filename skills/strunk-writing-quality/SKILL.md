@@ -1,6 +1,6 @@
 ---
 name: strunk-writing-quality
-description: Apply concrete clarity, concision, structure, grammar, and plain-English checks when editing prose, reviewing drafts, writing reports or articles, or teaching clear writing.
+description: Applies concrete checks for clarity, concision, structure, grammar, and plain English. Use when editing prose, reviewing drafts, writing longer pieces, or teaching clear writing.
 license: MIT and OGL-3.0; see NOTICE.md
 ---
 

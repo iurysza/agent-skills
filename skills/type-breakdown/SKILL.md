@@ -1,7 +1,6 @@
 ---
 name: type-breakdown
-description: Map code paths, types, abstractions, data flow, side effects, and errors. Use only when the user explicitly asks for a type breakdown of a feature, flow, or code path.
-license: MIT
+description: Maps a code path's types, abstractions, data flow, side effects, and errors. Use only when the user explicitly asks for a type breakdown of a feature, flow, or code path.
 ---
 
 # Type Breakdown

@@ -1,12 +1,6 @@
 ---
 name: tool-install
-description: >-
-  Plan and safely execute tool installations or upgrades only when the user
-  explicitly asks. Covers package managers, CLIs, GitHub releases, desktop
-  apps, setup scripts, environment impact, rollback, and verification. Never
-  modifies the system without explicit user approval.
-license: MIT
-compatibility: Best with web research and shell access. Package-manager guidance is macOS-first but adaptable.
+description: Plans and executes tool installations or upgrades with explicit approval, impact checks, rollback, and verification. Use only when the user asks to install or update software.
 ---
 
 # Tool Install Planner

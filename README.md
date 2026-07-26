@@ -12,7 +12,15 @@ npx skills@latest add iurysza/agent-skills
 gh skill install iurysza/agent-skills --all --agent universal --scope user
 ```
 
-Installs follow `main`; there are no versioned releases.
+Install one skill by name:
+
+```bash
+npx skills@latest add iurysza/agent-skills --skill tdd
+# or
+gh skill install iurysza/agent-skills tdd --agent universal --scope user
+```
+
+Replace `tdd` with any skill name listed below. Installs follow `main`; there are no versioned releases.
 
 ## Included skills
 

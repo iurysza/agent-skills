@@ -1,7 +1,6 @@
 ---
 name: goal
-description: Execute an approved goal package from ai-artifacts/goals. Use when the user provides a goal.md path or asks to implement a goal created by the setup-goal skill.
-license: MIT
+description: Executes an approved goal package from ai-artifacts/goals. Use when the user provides a goal.md path or asks to implement a goal created by setup-goal.
 ---
 
 # Execute Goal

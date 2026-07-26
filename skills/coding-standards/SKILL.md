@@ -1,7 +1,6 @@
 ---
 name: coding-standards
-description: Apply correct-by-construction coding standards covering boundary parsing, explicit failures, domain modeling, functional cores, imperative shells, module boundaries, dependency injection, testing, and type safety. Use when writing or reviewing code in any language.
-license: MIT
+description: Applies language-neutral engineering standards when writing or reviewing code, especially around boundaries, failures, domain models, dependencies, tests, and type safety.
 ---
 
 # Coding Standards
