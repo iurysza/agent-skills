@@ -58,14 +58,15 @@ def resolve_args(
     args: argparse.Namespace, catalog: dict[str, Any]
 ) -> tuple[str, str | None, str | None, str | None, float]:
     template = None
-    if args.template:
+    template_name = args.template or catalog.get("defaultTemplate")
+    if template_name:
         template = next(
-            (item for item in catalog["templates"] if item["id"] == args.template),
+            (item for item in catalog["templates"] if item["id"] == template_name),
             None,
         )
         if not template:
             raise ValueError(
-                f"Template '{args.template}' not found. Use --list-templates."
+                f"Template '{template_name}' not found. Use --list-templates."
             )
 
     voice = template.get("voice") if template else None
@@ -97,10 +98,12 @@ def list_voices(catalog: dict[str, Any]) -> None:
 
 def list_templates(catalog: dict[str, Any]) -> None:
     print("Available templates:")
+    default_template = catalog.get("defaultTemplate")
     for template in catalog["templates"]:
+        marker = " (default)" if template["id"] == default_template else ""
         print(
             f"  {template['id']:<24} {template['label']:<40} "
-            f"voice={template.get('voice', 'Orus')}"
+            f"voice={template.get('voice', 'Orus')}{marker}"
         )
 
 

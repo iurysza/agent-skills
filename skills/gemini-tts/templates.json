@@ -1,4 +1,5 @@
 {
+    "defaultTemplate": "natural-tech-conference",
     "voices": [
         {
             "name": "Achernar",
@@ -152,6 +153,16 @@
         }
     ],
     "templates": [
+        {
+            "id": "natural-tech-conference",
+            "label": "Natural San Francisco tech-conference delivery",
+            "voice": "Algenib",
+            "profile": "Experienced software engineer speaking normally at a small San Francisco technical conference. Calm, matter-of-fact, and unperformed.",
+            "scene": "A mid-sized conference breakout room. The speaker knows the topic and is explaining it plainly to engineering peers.",
+            "notes": "Use neutral conversational American English with a low emotional range. Keep volume, pitch, and pace mostly steady. Use ordinary sentence stress, modest pauses, and a slightly imperfect conversational rhythm. Do not punch keywords or perform personality. No drama, humor cues, rhetorical flourish, character voice, charisma push, or exaggerated warmth. Do not sound like a narrator, radio host, marketer, keynote speaker, or audiobook. Imagine answering a colleague's question clearly and casually.",
+            "speed": 1.3225,
+            "accent": "Neutral American"
+        },
         {
             "id": "mystery-narrator",
             "label": "Deep, resonant mystery narrator",

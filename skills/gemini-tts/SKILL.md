@@ -8,6 +8,18 @@ compatibility: Requires Python 3.10+, google-genai 1.65+, ffmpeg, and a Gemini A
 
 Generate an MP3 from inline text or a UTF-8 text/Markdown file with the bundled script.
 
+## Default delivery
+
+For any unqualified TTS request, use the bundled `natural-tech-conference` default. The CLI applies it automatically when `--template` is omitted:
+
+- voice: `Algenib` (gravelly, lower pitch)
+- profile: experienced software engineer speaking normally at a small San Francisco technical conference
+- scene: a mid-sized breakout room, explaining the topic plainly to engineering peers
+- delivery: neutral conversational American English, low emotional range, ordinary sentence stress, modest pauses, and no narrator, marketer, keynote, radio-host, or audiobook performance
+- speed: `1.3225` (15% faster than `1.15`)
+
+Keep this default unless the user explicitly requests another voice, delivery style, accent, template, or speed.
+
 ## Setup
 
 Resolve paths relative to this `SKILL.md`; do not assume a particular install directory.
@@ -25,8 +37,7 @@ Confirm or infer:
 
 - source text or file
 - output path
-- voice or template
-- desired delivery notes and speed
+- any explicit override to the default delivery
 - whether playback is wanted
 
 For long input, report the chunk count before making paid API calls. Ask for confirmation when the request is unexpectedly large or the user has not clearly approved generation.
@@ -36,23 +47,22 @@ For long input, report the chunk count before making paid API calls. Ask for con
 ```bash
 python3 <skill-directory>/scripts/generate_tts.py --list-voices
 python3 <skill-directory>/scripts/generate_tts.py --list-templates
-python3 <skill-directory>/scripts/generate_tts.py --show-template mystery-narrator
+python3 <skill-directory>/scripts/generate_tts.py --show-template natural-tech-conference
 ```
 
-Bundled templates include `mystery-narrator`, `newscaster`, `whisper`, `empathetic`, `deadpan`, `promo-hype`, and `podcast-newsletter`.
+Bundled templates include the default `natural-tech-conference` plus `mystery-narrator`, `newscaster`, `whisper`, `empathetic`, `deadpan`, `promo-hype`, and `podcast-newsletter`.
 
 ## Generate audio
 
-From text:
+Using the default delivery:
 
 ```bash
 python3 <skill-directory>/scripts/generate_tts.py \
-  --text 'Read this clearly and naturally.' \
-  --voice Orus \
+  --text 'Explain this clearly and naturally.' \
   --output ./narration.mp3
 ```
 
-From a file and template:
+From a file with an explicit alternate template:
 
 ```bash
 python3 <skill-directory>/scripts/generate_tts.py \
@@ -75,7 +85,7 @@ python3 <skill-directory>/scripts/generate_tts.py \
   --output ./script.mp3
 ```
 
-Explicit CLI flags override template values. Templates override the hard defaults (`Orus`, speed `1.0`).
+Explicit CLI flags override an explicit template. An explicit template overrides the catalog default. If the catalog has no default, the hard fallback remains `Orus` at speed `1.0`.
 
 ## Reliability controls
 

@@ -28,9 +28,12 @@ from pathlib import Path
 for path in (
     Path("skills/chatgpt-imagegen/scripts/generate_image.py"),
     Path("skills/gemini-tts/scripts/generate_tts.py"),
+    Path("skills/gemini-tts/scripts/test_generate_tts.py"),
 ):
     ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 PY
+
+PYTHONDONTWRITEBYTECODE=1 python3 skills/gemini-tts/scripts/test_generate_tts.py
 
 if grep -RIEna '(/Users/[^/[:space:]]+|/home/[^/[:space:]]+|/var/folders/[^[:space:]]+|[A-Za-z]:\\Users\\)' skills; then
   printf 'error: personal absolute path found\n' >&2
