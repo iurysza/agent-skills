@@ -13,6 +13,7 @@ const MODEL_NAME =
 interface AudioChunk {
   path: string;
   offsetSeconds: number;
+  durationSeconds: number;
 }
 
 interface TranscribeOptions {
@@ -97,7 +98,9 @@ async function splitAudio(
 ): Promise<AudioChunk[]> {
   const chunkSeconds = chunkMinutes * 60;
   const count = Math.ceil(duration / chunkSeconds);
-  if (count <= 1) return [{ path: normalizedPath, offsetSeconds: 0 }];
+  if (count <= 1) {
+    return [{ path: normalizedPath, offsetSeconds: 0, durationSeconds: duration }];
+  }
 
   console.log(`Splitting into ${count} chunks of at most ${chunkMinutes} minutes...`);
   const chunks: AudioChunk[] = [];
@@ -120,18 +123,76 @@ async function splitAudio(
     if (result.exitCode !== 0) {
       throw new Error(`ffmpeg failed to create chunk ${index + 1}: ${result.stderr}`);
     }
-    chunks.push({ path: chunkPath, offsetSeconds });
+    chunks.push({
+      path: chunkPath,
+      offsetSeconds,
+      durationSeconds: Math.min(chunkSeconds, duration - offsetSeconds),
+    });
   }
   return chunks;
 }
 
-function formatClock(totalSeconds: number): string {
+function formatTimestamp(totalSeconds: number): string {
   const seconds = Math.floor(totalSeconds % 60);
   const minutes = Math.floor(totalSeconds / 60) % 60;
   const hours = Math.floor(totalSeconds / 3600);
   return hours > 0
     ? `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
     : `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function parseTimestamp(timestamp: string): number | undefined {
+  const parts = timestamp.split(":").map(Number);
+  if (parts.some((part) => !Number.isInteger(part)) || parts.at(-1)! >= 60) {
+    return undefined;
+  }
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3 && parts[1] < 60) {
+    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  }
+  return undefined;
+}
+
+class TimestampValidationError extends Error {}
+
+export function correctChunkTimestamps(
+  text: string,
+  offsetSeconds: number,
+  chunkSeconds: number,
+  previousTimestamp?: number,
+): { text: string; timestamps: number[] } {
+  const timestamps: number[] = [];
+  let lastTimestamp = previousTimestamp;
+  const minimum = offsetSeconds - 5;
+  const maximum = offsetSeconds + chunkSeconds + 5;
+  const correctedText = text.replace(
+    /\[((?:\d{2}:)?\d{2}:\d{2})\]/g,
+    (_match, timestamp: string) => {
+      const relativeSeconds = parseTimestamp(timestamp);
+      if (relativeSeconds === undefined) {
+        throw new TimestampValidationError(`invalid timestamp [${timestamp}]`);
+      }
+
+      const offsetTimestamp = offsetSeconds + relativeSeconds;
+      const correctedSeconds =
+        lastTimestamp === offsetTimestamp ? offsetTimestamp + 1 : offsetTimestamp;
+      if (correctedSeconds < minimum || correctedSeconds > maximum) {
+        throw new TimestampValidationError(
+          `timestamp [${timestamp}] corrected to [${formatTimestamp(correctedSeconds)}] outside [${minimum}s, ${maximum}s]`,
+        );
+      }
+      if (lastTimestamp !== undefined && correctedSeconds <= lastTimestamp) {
+        throw new TimestampValidationError(
+          `timestamp [${timestamp}] corrected to [${formatTimestamp(correctedSeconds)}] is not later than [${formatTimestamp(lastTimestamp)}]`,
+        );
+      }
+
+      timestamps.push(correctedSeconds);
+      lastTimestamp = correctedSeconds;
+      return `[${formatTimestamp(correctedSeconds)}]`;
+    },
+  );
+  return { text: correctedText, timestamps };
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -165,51 +226,73 @@ async function transcribeChunk(
   chunk: AudioChunk,
   index: number,
   total: number,
-): Promise<string> {
+  previousTimestamp?: number,
+): Promise<{ text: string; timestamps: number[] }> {
   console.log(`Transcribing chunk ${index + 1}/${total}...`);
   const audioData = await Bun.file(chunk.path).arrayBuffer();
   const base64Audio = Buffer.from(audioData).toString("base64");
-  const offset = formatClock(chunk.offsetSeconds);
 
-  let response: any;
-  try {
-    response = await client.models.generateContent({
-      model: MODEL_NAME,
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { inlineData: { mimeType: "audio/mp3", data: base64Audio } },
-            {
-              text: `Transcribe this audio accurately with speaker labels and timestamps.
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    let response: any;
+    try {
+      response = await client.models.generateContent({
+        model: MODEL_NAME,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { inlineData: { mimeType: "audio/mp3", data: base64Audio } },
+              {
+                text: `Transcribe this audio accurately with speaker labels and timestamps.
 
-This chunk begins at ${offset} in the full recording. Timestamps must refer to the full recording and must not restart at 00:00.
+Timestamps must be relative to the start of this audio chunk. Start near 00:00 and do not add any full-recording offset.
 
 Rules:
 1. Use consistent speaker names only when the audio provides enough evidence. Otherwise use Speaker 1, Speaker 2, and so on.
-2. Put each speaker turn on its own line as: [HH:MM:SS] Speaker: speech. Omit the hour only when the full timestamp is under one hour.
+2. Put each speaker turn on its own line as: [MM:SS] Speaker: speech. Use [HH:MM:SS] only if the chunk reaches one hour.
 3. Preserve meaningful false starts and filler words.
 4. Mark relevant non-speech sounds such as [laughs], [sighs], or [inaudible].
 5. Mark overlapping speech when it affects comprehension.
 6. Output only the transcript, with no introduction or summary.`,
-            },
-          ],
-        },
-      ],
-    });
-  } catch (error) {
-    throw new Error(
-      `Gemini request failed for chunk ${index + 1}: ${safeProviderError(error)}`,
-    );
+              },
+            ],
+          },
+        ],
+      });
+    } catch (error) {
+      throw new Error(
+        `Gemini request failed for chunk ${index + 1}: ${safeProviderError(error)}`,
+      );
+    }
+
+    const parts = response.candidates?.[0]?.content?.parts ?? [];
+    const text = parts
+      .map((part: { text?: string }) => part.text ?? "")
+      .join("")
+      .trim();
+    if (!text) throw new Error(`Gemini returned no transcript for chunk ${index + 1}`);
+
+    try {
+      return correctChunkTimestamps(
+        text,
+        chunk.offsetSeconds,
+        chunk.durationSeconds,
+        previousTimestamp,
+      );
+    } catch (error) {
+      if (!(error instanceof TimestampValidationError)) throw error;
+      if (attempt === 3) {
+        throw new Error(
+          `Timestamp validation failed for chunk ${index + 1} after 3 attempts: ${error.message}`,
+        );
+      }
+      console.warn(
+        `Timestamp validation failed for chunk ${index + 1} (attempt ${attempt}/3): ${error.message}; retrying...`,
+      );
+    }
   }
 
-  const parts = response.candidates?.[0]?.content?.parts ?? [];
-  const text = parts
-    .map((part: { text?: string }) => part.text ?? "")
-    .join("")
-    .trim();
-  if (!text) throw new Error(`Gemini returned no transcript for chunk ${index + 1}`);
-  return text;
+  throw new Error(`Timestamp validation failed for chunk ${index + 1}`);
 }
 
 async function transcribe(inputPath: string, options: TranscribeOptions): Promise<void> {
@@ -248,8 +331,17 @@ async function transcribe(inputPath: string, options: TranscribeOptions): Promis
     const { GoogleGenAI } = await import("@google/genai");
     const client = new GoogleGenAI({ apiKey: resolveApiKey() });
     const transcripts: string[] = [];
+    let previousTimestamp: number | undefined;
     for (const [index, chunk] of chunks.entries()) {
-      transcripts.push(await transcribeChunk(client, chunk, index, chunks.length));
+      const transcript = await transcribeChunk(
+        client,
+        chunk,
+        index,
+        chunks.length,
+        previousTimestamp,
+      );
+      transcripts.push(transcript.text);
+      previousTimestamp = transcript.timestamps.at(-1) ?? previousTimestamp;
     }
 
     const output = `---
