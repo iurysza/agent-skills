@@ -143,7 +143,7 @@ function formatTimestamp(totalSeconds: number): string {
 
 function parseTimestamp(timestamp: string): number | undefined {
   const parts = timestamp.split(":").map(Number);
-  if (parts.some((part) => !Number.isInteger(part)) || parts.at(-1)! >= 60) {
+  if (parts.some((part) => !Number.isInteger(part) || part < 0) || parts.at(-1)! >= 60) {
     return undefined;
   }
   if (parts.length === 2) return parts[0] * 60 + parts[1];
@@ -166,7 +166,7 @@ export function correctChunkTimestamps(
   const minimum = offsetSeconds - 5;
   const maximum = offsetSeconds + chunkSeconds + 5;
   const correctedText = text.replace(
-    /\[((?:\d{2}:)?\d{2}:\d{2})\]/g,
+    /\[((?:\d{1,2}:)?\d{1,2}:\d{2})\]/g,
     (_match, timestamp: string) => {
       const relativeSeconds = parseTimestamp(timestamp);
       if (relativeSeconds === undefined) {
