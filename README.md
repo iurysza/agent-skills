@@ -32,6 +32,7 @@ Replace `tdd` with any skill name listed below. Installs follow `main`; there ar
 | [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Language-neutral correct-by-construction engineering standards. |
 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain domain language, diagrams, and durable decisions under `ai-artifacts/`. |
 | [`goal`](skills/goal/SKILL.md) | user-invoked | Execute an approved goal package. |
+| [`readback`](skills/readback/SKILL.md) | model-invoked | Restate the user's intended outcome and constraints before work begins. |
 | [`setup-goal`](skills/setup-goal/SKILL.md) | model-invoked | Extract intent and produce an approved execution package. |
 | [`skill-cleaner`](skills/skill-cleaner/SKILL.md) | model-invoked | Audit skill roots, duplicates, usage, and prompt cost. |
 | [`tdd`](skills/tdd/SKILL.md) | model-invoked | Vertical red-green test-driven development. |
