@@ -5,7 +5,9 @@ description: Restate the user's intention to verify alignment.
 
 ## Definition
 
-A readback is the repetition of an instruction, request, or piece of information received from the user, stated back by the coding agent or assistant. It says what the user asked or what they meant to say so both sides can confirm the same understanding.
+A readback repeats an instruction, request, or piece of information back to the user. It states what the agent believes the user asked or meant, so the user can confirm or correct the understanding before work continues.
+
+Use it to catch misunderstandings before they become wrong work.
 
 ## Purpose
 
@@ -16,11 +18,11 @@ A readback is the repetition of an instruction, request, or piece of information
 ## Process
 
 1. Inspect the relevant context.
-2. Infer the user's intended outcome or meaning.
-3. Preserve important constraints and conditions.
-4. Surface assumptions or unresolved decisions.
+2. Infer the user's intention or meaning.
+3. Keep important constraints and conditions.
+4. Name assumptions or unresolved ambiguity.
 5. Give the readback.
-6. Stop and wait for correction or approval.
+6. Stop and wait for confirmation or correction.
 
 ## Domain Language + Plain-English Gloss
 
@@ -38,7 +40,7 @@ or:
 
 > Build one small part through every layer of the system...
 
-The goal is to preserve useful domain language without requiring the user to already know it.
+The idea is to preserve useful domain language without requiring the user to already know it.
 
 Do not introduce jargon just to sound technical. Use it when it gives the idea a useful name.
 
@@ -52,5 +54,5 @@ Do not introduce jargon just to sound technical. Use it when it gives the idea a
 
 ## Principle
 
-Make sure your response sounds like one human talking to another.
-Remove jargon, ceremony, repetition, and unnecessary structure. Preserve the meaning and any important caveats.
+Make sure your response sounds like a person talking to another.
+Drop jargon, ceremony, repetition, and unnecessary structure. Preserve the meaning and try to match user's tone/voice.
