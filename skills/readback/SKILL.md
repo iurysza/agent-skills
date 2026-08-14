@@ -3,17 +3,21 @@ name: readback
 description: Restate the user's intention to verify alignment.
 ---
 
-# Readback
+## Definition
 
-State what you believe the user wants accomplished.
+A readback is the repetition of an instruction, request, or piece of information received from the user, stated back by the coding agent or assistant. It says what the user asked or what they meant to say so both sides can confirm the same understanding.
 
-A readback is not a plan. It describes **what the user has asked and his intention**.
+## Purpose
+
+- Confirm that the agent correctly received and understood the user's instruction or intent.
+- Allow the user to verify accuracy and correct any misunderstanding.
+- Prevent errors caused by acting on a mistaken interpretation.
 
 ## Process
 
-1. Inspect the relevant code and context.
-2. Infer the user's intended outcome.
-3. Preserve important constraints, conditions, and negative requirements.
+1. Inspect the relevant context.
+2. Infer the user's intended outcome or meaning.
+3. Preserve important constraints and conditions.
 4. Surface assumptions or unresolved decisions.
 5. Give the readback.
 6. Stop and wait for correction or approval.
@@ -43,10 +47,8 @@ Do not introduce jargon just to sound technical. Use it when it gives the idea a
 - Do not turn the readback into an implementation plan.
 - Do not silently resolve meaningful ambiguity.
 - Preserve conditions closely enough that their meaning cannot be lost.
-- Treat negative requirements as first-class constraints.
 - Use domain language when useful, followed by a plain-English gloss.
 - If the user corrects the readback, update it before proceeding.
-- For trivial, unambiguous changes, skip the full readback.
 
 ## Principle
 
