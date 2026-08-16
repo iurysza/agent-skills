@@ -10,12 +10,7 @@
 
 ## Matt Pocock skills
 
-`tdd` is synchronized from [mattpocock/skills](https://github.com/mattpocock/skills). `domain-modeling` is an adapted local fork. Both are copyright 2026 Matt Pocock and licensed under the MIT License.
-
-The TDD synchronization removes unsupported invocation metadata and applies the catalog's refactoring wording.
-
-- Source: <https://github.com/mattpocock/skills>
-- License: <https://github.com/mattpocock/skills/blob/main/LICENSE>
+`domain-modeling` is adapted from [mattpocock/skills](https://github.com/mattpocock/skills). Copyright 2026 Matt Pocock. MIT licensed.
 
 ## Plannotator goal workflow
 

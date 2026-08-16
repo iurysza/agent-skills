@@ -15,12 +15,12 @@ gh skill install iurysza/agent-skills --all --agent universal --scope user
 Install one skill by name:
 
 ```bash
-npx skills@latest add iurysza/agent-skills --skill tdd
+npx skills@latest add iurysza/agent-skills --skill better-ui
 # or
-gh skill install iurysza/agent-skills tdd --agent universal --scope user
+gh skill install iurysza/agent-skills better-ui --agent universal --scope user
 ```
 
-Replace `tdd` with any skill name listed below. Installs follow `main`; there are no versioned releases.
+Replace `better-ui` with any skill name listed below. Installs follow `main`; there are no versioned releases.
 
 ## Included skills
 
@@ -36,7 +36,6 @@ Replace `tdd` with any skill name listed below. Installs follow `main`; there ar
 | [`readback`](skills/readback/SKILL.md) | model-invoked | Restate the user's intended outcome and constraints before work begins. |
 | [`setup-goal`](skills/setup-goal/SKILL.md) | model-invoked | Extract intent and produce an approved execution package. |
 | [`skill-cleaner`](skills/skill-cleaner/SKILL.md) | model-invoked | Audit skill roots, duplicates, usage, and prompt cost. |
-| [`tdd`](skills/tdd/SKILL.md) | model-invoked | Vertical red-green test-driven development. |
 | [`tech-spec`](skills/tech-spec/SKILL.md) | user-invoked | Produce a typed call-stack architecture handoff. |
 | [`tool-install`](skills/tool-install/SKILL.md) | model-invoked | Safely install or update tools. |
 | [`type-breakdown`](skills/type-breakdown/SKILL.md) | user-invoked | Trace a code path through its types, effects, and errors. |
@@ -63,18 +62,6 @@ Replace `tdd` with any skill name listed below. Installs follow `main`; there ar
 | [`audio-transcribe`](skills/audio-transcribe/SKILL.md) | model-invoked | Transcribe local audio with Gemini. |
 | [`chatgpt-imagegen`](skills/chatgpt-imagegen/SKILL.md) | model-invoked | Generate and edit images with OpenAI. |
 | [`gemini-tts`](skills/gemini-tts/SKILL.md) | model-invoked | Turn text and Markdown into spoken MP3 audio. |
-
-## Upstream sync
-
-`tdd` is copied from [mattpocock/skills](https://github.com/mattpocock/skills). Do not edit it by hand; re-sync instead.
-
-```bash
-# Upstream main
-./scripts/sync-matt-skills.sh
-
-# Specific branch, tag, or commit
-MATT_SKILLS_REF=<sha-or-ref> ./scripts/sync-matt-skills.sh
-```
 
 ## Check
 

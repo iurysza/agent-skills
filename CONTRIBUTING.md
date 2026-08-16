@@ -9,14 +9,4 @@
 5. Record copied or adapted material in `THIRD_PARTY_NOTICES.md`.
 6. Run `./scripts/check.sh`.
 
-## Synced skill
-
-Do not edit the synchronized `tdd` skill by hand. Update it with:
-
-```bash
-./scripts/sync-matt-skills.sh
-```
-
-Set `MATT_SKILLS_REF` to sync a specific branch, tag, or commit.
-
 The repository tracks a rolling `main` branch and does not publish versioned releases.
