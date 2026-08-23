@@ -1,6 +1,8 @@
 ---
 name: deslopify
 description: Removes generic AI mannerisms, inflated phrasing, and repetition from prose while preserving the author's voice. Use when the user asks to deslopify or naturalize a draft.
+metadata:
+  category: writing-style
 ---
 
 # Deslopify

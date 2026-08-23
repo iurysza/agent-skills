@@ -1,6 +1,8 @@
 ---
 name: readback
 description: Restate the user's intention to verify alignment.
+metadata:
+  category: writing-style
 ---
 
 ## Definition

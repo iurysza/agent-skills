@@ -33,7 +33,6 @@ Replace `better-ui` with any skill name listed below. Installs follow `main`; th
 | [`docker-patterns`](skills/docker-patterns/SKILL.md) | model-invoked | Apply Docker and Compose patterns for development, security, and installer testing. |
 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain domain language, diagrams, and durable decisions under `ai-artifacts/`. |
 | [`goal`](skills/goal/SKILL.md) | user-invoked | Execute an approved goal package. |
-| [`readback`](skills/readback/SKILL.md) | model-invoked | Restate the user's intended outcome and constraints before work begins. |
 | [`setup-goal`](skills/setup-goal/SKILL.md) | model-invoked | Extract intent and produce an approved execution package. |
 | [`skill-cleaner`](skills/skill-cleaner/SKILL.md) | model-invoked | Audit skill roots, duplicates, usage, and prompt cost. |
 | [`tech-spec`](skills/tech-spec/SKILL.md) | user-invoked | Produce a typed call-stack architecture handoff. |
@@ -52,8 +51,10 @@ Replace `better-ui` with any skill name listed below. Installs follow `main`; th
 | --- | --- | --- |
 | [`bro`](skills/bro/SKILL.md) | user-invoked | Restate the previous response plainly and concisely. |
 | [`deslopify`](skills/deslopify/SKILL.md) | model-invoked | Remove generic AI mannerisms while preserving voice. |
+| [`readback`](skills/readback/SKILL.md) | model-invoked | Restate the user's intended outcome and constraints before work begins. |
 | [`rephrase`](skills/rephrase/SKILL.md) | user-invoked | Tighten rough text while preserving sentiment and voice. |
 | [`strunk-writing-quality`](skills/strunk-writing-quality/SKILL.md) | model-invoked | Edit prose for clarity and concision. |
+| [`technical-writing`](skills/technical-writing/SKILL.md) | model-invoked | Apply layered standards to technical documentation and engineering prose. |
 
 ### Media
 

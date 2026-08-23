@@ -20,6 +20,14 @@ Plannotator is licensed under MIT OR Apache-2.0.
 
 - Source: <https://github.com/backnotprop/plannotator>
 
+## Technical writing guidance
+
+`technical-writing` adapts principles from Diátaxis, the Google developer documentation style guide, ASD-STE100 Issue 9, and John R. Kohl's *The Global English Style Guide*. The skill summarizes transferable guidance and does not include the ASD-STE100 dictionary or numbered specification rules.
+
+- Diátaxis: <https://diataxis.fr/>
+- Google developer documentation style guide: <https://developers.google.com/style>
+- ASD-STE100: <https://asd-ste100.org/>
+
 ## The Elements of Style
 
 `strunk-writing-quality` adapts principles and examples from *The Elements of Style* by William Strunk Jr., first published in 1918 and in the public domain in the United States.

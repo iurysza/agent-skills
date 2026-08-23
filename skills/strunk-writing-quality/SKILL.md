@@ -1,6 +1,8 @@
 ---
 name: strunk-writing-quality
 description: Use whenever user wants to send a message or edit text, review a draft, or when writing markdown files.
+metadata:
+  category: writing-style
 ---
 
 # Strunk Writing Quality
