@@ -1,6 +1,8 @@
 ---
 name: tool-install
 description: Plans and executes tool installations or upgrades with explicit approval, impact checks, rollback, and verification. Use only when the user asks to install or update software.
+metadata:
+  category: development
 ---
 
 # Tool Install Planner

@@ -2,6 +2,8 @@
 name: gemini-tts
 description: Generates spoken MP3 audio from text or Markdown with Gemini TTS. Use for narration, accessibility, voice previews, or reading documents aloud.
 compatibility: Requires Python 3.10+, google-genai 1.65+, ffmpeg, and a Gemini API key. Optional playback needs afplay, ffplay, or mpv.
+metadata:
+  category: visual-media
 ---
 
 # Gemini TTS

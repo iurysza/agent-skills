@@ -2,6 +2,8 @@
 name: chatgpt-imagegen
 description: Generates or edits raster images through OpenAI's Image API. Use for text-to-image work, reference-based edits, masks, transparent assets, and product or editorial visuals.
 compatibility: Requires Python 3.10+, openai 2.16+, network access, and an OpenAI API key.
+metadata:
+  category: visual-media
 ---
 
 # ChatGPT Image Generation

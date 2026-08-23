@@ -1,6 +1,8 @@
 ---
 name: brainstorming
 description: Explores and validates a feature, component, workflow, or behavior change before implementation. Use when work needs clarified intent, compared approaches, and an approved direction.
+metadata:
+  category: planning-architecture
 ---
 
 # Brainstorming

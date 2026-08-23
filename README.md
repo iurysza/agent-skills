@@ -22,6 +22,10 @@ gh skill install iurysza/agent-skills better-ui --agent universal --scope user
 
 Replace `better-ui` with any skill name listed below. Installs follow `main`; there are no versioned releases.
 
+## Category metadata
+
+Every skill sets one `metadata.category`: `writing-style`, `planning-architecture`, `development`, `review-verification`, `visual-media`, `browser-automation`, or `agent-workspace`. Category-aware launchers can group skills and match category names during search.
+
 ## Included skills
 
 ### Development workflows

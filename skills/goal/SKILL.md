@@ -1,6 +1,8 @@
 ---
 name: goal
 description: Executes an approved goal package from ai-artifacts/goals. Use when the user provides a goal.md path or asks to implement a goal created by setup-goal.
+metadata:
+  category: planning-architecture
 ---
 
 # Execute Goal

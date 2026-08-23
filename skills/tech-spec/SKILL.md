@@ -1,6 +1,8 @@
 ---
 name: tech-spec
 description: Produces implementation-ready technical specifications with concrete contracts, module boundaries, data flows, file changes, and test slices. Use for architecture or implementation handoffs.
+metadata:
+  category: planning-architecture
 ---
 
 # Technical Specification

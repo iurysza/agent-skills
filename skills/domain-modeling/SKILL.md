@@ -1,6 +1,8 @@
 ---
 name: domain-modeling
 description: Maintains project domain language, context maps, diagrams, and architectural decisions under ai-artifacts. Use when clarifying terminology, bounded contexts, or durable design decisions.
+metadata:
+  category: planning-architecture
 ---
 
 # Domain Modeling

@@ -2,6 +2,8 @@
 name: skill-cleaner
 description: Audits installed Agent Skills for duplicates, unused candidates, loaded roots, oversized descriptions, and prompt cost. Use when cleaning or debugging skill collections.
 compatibility: Requires Node.js 18 or newer. Usage-history analysis supports Codex and OpenClaw logs.
+metadata:
+  category: agent-workspace
 ---
 
 # Skill Cleaner

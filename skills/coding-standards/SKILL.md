@@ -1,6 +1,8 @@
 ---
 name: coding-standards
 description: Applies language-neutral engineering standards when writing or reviewing code, especially around boundaries, failures, domain models, dependencies, tests, and type safety.
+metadata:
+  category: development
 ---
 
 # Coding Standards

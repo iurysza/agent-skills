@@ -1,6 +1,8 @@
 ---
 name: type-breakdown
 description: Maps a code path's types, abstractions, data flow, side effects, and errors. Use only when the user explicitly asks for a type breakdown of a feature, flow, or code path.
+metadata:
+  category: development
 ---
 
 # Type Breakdown

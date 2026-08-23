@@ -1,6 +1,8 @@
 ---
 name: setup-goal
 description: Turns an idea into an approved goal package under ai-artifacts. Use when work needs clarified intent, scope, accepted facts, an implementation plan, and an explicit handoff.
+metadata:
+  category: planning-architecture
 ---
 
 # Setup Goal
