@@ -4,10 +4,6 @@
 
 `better-ui` is copied from [jakubkrehel/skills](https://github.com/jakubkrehel/skills/tree/ba35986bcf433fdca78ea571b0a3dc329cea89ba/skills/better-ui). Copyright (c) 2026 Jakub Krehel. MIT licensed.
 
-## Docker Patterns
-
-`docker-patterns` is copied from [affaan-m/ECC](https://github.com/affaan-m/ECC/tree/50743cec75852e32d6517c9894a3339a2462a713/skills/docker-patterns). Copyright (c) 2026 Affaan Mustafa. MIT licensed.
-
 ## Matt Pocock skills
 
 `domain-modeling` is adapted from [mattpocock/skills](https://github.com/mattpocock/skills). Copyright 2026 Matt Pocock. MIT licensed.

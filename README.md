@@ -34,7 +34,6 @@ Every skill sets one `metadata.category`: `writing-style`, `planning-architectur
 | --- | --- | --- |
 | [`brainstorming`](skills/brainstorming/SKILL.md) | model-invoked | Explore and approve a design direction before implementation. |
 | [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Language-neutral correct-by-construction engineering standards. |
-| [`docker-patterns`](skills/docker-patterns/SKILL.md) | model-invoked | Apply Docker and Compose patterns for development, security, and installer testing. |
 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | model-invoked | Maintain domain language, diagrams, and durable decisions under `ai-artifacts/`. |
 | [`goal`](skills/goal/SKILL.md) | user-invoked | Execute an approved goal package. |
 | [`setup-goal`](skills/setup-goal/SKILL.md) | model-invoked | Extract intent and produce an approved execution package. |
