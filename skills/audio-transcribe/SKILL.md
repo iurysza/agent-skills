@@ -57,7 +57,7 @@ Supported inputs: MP3, WAV, M4A, OGG, FLAC, and WebM.
 
 ## Output
 
-Default output contains source metadata, duration, model, mode, language hints, custom vocabulary, chunk count, speaker-labelled turns, and timestamps from Gemini's word annotations. The CLI deletes each remote Gemini upload after its transcription request. It warns if that deletion fails.
+Default output contains source metadata, duration, model, mode, language hints, custom vocabulary, chunk count, speaker-labelled turns, and timestamps from Gemini's word annotations. The CLI orders annotations by their audio timestamps before it formats turns. The CLI deletes each remote Gemini upload after its transcription request. It warns if that deletion fails.
 
 `--smart` produces clean text from `interaction.output_text`. It does not invent timestamps or speaker identity that the API did not return.
 

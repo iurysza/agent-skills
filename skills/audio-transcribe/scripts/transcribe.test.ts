@@ -57,6 +57,18 @@ describe("formatStructuredTranscript", () => {
     ).toBe("[01:00] Speaker 1: Hello, there\n\n[01:02] Speaker 2: Hi!");
   });
 
+  test("orders provider annotations by audio time", () => {
+    expect(
+      formatStructuredTranscript(
+        [
+          { type: "word_info", speaker: "spk:1", start_offset: "2s", text: "Later" },
+          { type: "word_info", speaker: "spk:2", start_offset: "0.5s", text: "First" },
+        ],
+        0,
+      ),
+    ).toBe("[00:00] Speaker 2: First\n\n[00:02] Speaker 1: Later");
+  });
+
   test("fails when Gemini omits usable timestamp annotations", () => {
     expect(() => formatStructuredTranscript([{ type: "word_info", text: "Hello" }], 0)).toThrow(
       "Gemini returned no timestamped word annotations.",

@@ -214,12 +214,16 @@ export function formatStructuredTranscript(
   offsetSeconds: number,
 ): string {
   const groups: Array<{ speaker: string; startSeconds: number; words: string[] }> = [];
+  const timestampedAnnotations = annotations
+    .map((annotation) => ({ annotation, startSeconds: parseOffset(annotation.start_offset) }))
+    .filter(
+      (entry): entry is { annotation: WordAnnotation; startSeconds: number } =>
+        Boolean(entry.annotation.text?.trim()) && entry.startSeconds !== undefined,
+    )
+    .sort((left, right) => left.startSeconds - right.startSeconds);
 
-  for (const annotation of annotations) {
-    const word = annotation.text?.trim();
-    const startSeconds = parseOffset(annotation.start_offset);
-    if (!word || startSeconds === undefined) continue;
-
+  for (const { annotation, startSeconds } of timestampedAnnotations) {
+    const word = annotation.text!.trim();
     const speaker = speakerName(annotation.speaker);
     const group = groups.at(-1);
     if (!group || group.speaker !== speaker) {
