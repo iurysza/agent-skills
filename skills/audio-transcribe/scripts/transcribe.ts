@@ -3,12 +3,13 @@ import { existsSync, mkdirSync, rmSync } from "fs";
 import { basename, dirname, extname, join, resolve } from "path";
 import { parseArgs } from "util";
 
-const DEFAULT_CHUNK_MINUTES = 20;
+const DEFAULT_CHUNK_MINUTES = 30;
+const STRUCTURED_MAX_CHUNK_MINUTES = 30;
+const SMART_MAX_CHUNK_MINUTES = 60;
 const SUPPORTED_FORMATS = [".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm"];
-const MODEL_NAME =
-  process.env.GEMINI_TRANSCRIBE_MODEL ||
-  process.env.GEMINI_FLASH_DEFAULT ||
-  "gemini-3.1-flash-lite-preview";
+const MODEL_NAME = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-3.5-transcribe";
+
+type TranscriptionMode = "verbatim" | "smart";
 
 interface AudioChunk {
   path: string;
@@ -18,8 +19,32 @@ interface AudioChunk {
 
 interface TranscribeOptions {
   chunkMinutes: number;
+  customVocabulary: string[];
   keep: boolean;
+  languageCodes: string[];
+  mode: TranscriptionMode;
   outputPath: string;
+}
+
+interface WordAnnotation {
+  end_offset?: string;
+  speaker?: string;
+  start_offset?: string;
+  text?: string;
+  type?: string;
+}
+
+interface InteractionContent {
+  annotations?: WordAnnotation[];
+}
+
+interface InteractionStep {
+  content?: InteractionContent[];
+}
+
+interface TranscriptionResponse {
+  output_text?: string;
+  steps?: InteractionStep[];
 }
 
 async function run(
@@ -132,67 +157,13 @@ async function splitAudio(
   return chunks;
 }
 
-function formatTimestamp(totalSeconds: number): string {
+export function formatTimestamp(totalSeconds: number): string {
   const seconds = Math.floor(totalSeconds % 60);
   const minutes = Math.floor(totalSeconds / 60) % 60;
   const hours = Math.floor(totalSeconds / 3600);
   return hours > 0
     ? `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
     : `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
-function parseTimestamp(timestamp: string): number | undefined {
-  const parts = timestamp.split(":").map(Number);
-  if (parts.some((part) => !Number.isInteger(part) || part < 0) || parts.at(-1)! >= 60) {
-    return undefined;
-  }
-  if (parts.length === 2) return parts[0] * 60 + parts[1];
-  if (parts.length === 3 && parts[1] < 60) {
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  }
-  return undefined;
-}
-
-class TimestampValidationError extends Error {}
-
-export function correctChunkTimestamps(
-  text: string,
-  offsetSeconds: number,
-  chunkSeconds: number,
-  previousTimestamp?: number,
-): { text: string; timestamps: number[] } {
-  const timestamps: number[] = [];
-  let lastTimestamp = previousTimestamp;
-  const minimum = offsetSeconds - 5;
-  const maximum = offsetSeconds + chunkSeconds + 5;
-  const correctedText = text.replace(
-    /\[((?:\d{1,2}:)?\d{1,2}:\d{2})\]/g,
-    (_match, timestamp: string) => {
-      const relativeSeconds = parseTimestamp(timestamp);
-      if (relativeSeconds === undefined) {
-        throw new TimestampValidationError(`invalid timestamp [${timestamp}]`);
-      }
-
-      const offsetTimestamp = offsetSeconds + relativeSeconds;
-      const correctedSeconds =
-        lastTimestamp === offsetTimestamp ? offsetTimestamp + 1 : offsetTimestamp;
-      if (correctedSeconds < minimum || correctedSeconds > maximum) {
-        throw new TimestampValidationError(
-          `timestamp [${timestamp}] corrected to [${formatTimestamp(correctedSeconds)}] outside [${minimum}s, ${maximum}s]`,
-        );
-      }
-      if (lastTimestamp !== undefined && correctedSeconds <= lastTimestamp) {
-        throw new TimestampValidationError(
-          `timestamp [${timestamp}] corrected to [${formatTimestamp(correctedSeconds)}] is not later than [${formatTimestamp(lastTimestamp)}]`,
-        );
-      }
-
-      timestamps.push(correctedSeconds);
-      lastTimestamp = correctedSeconds;
-      return `[${formatTimestamp(correctedSeconds)}]`;
-    },
-  );
-  return { text: correctedText, timestamps };
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -202,6 +173,76 @@ function formatDuration(totalSeconds: number): string {
   if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
   if (minutes > 0) return `${minutes}m ${seconds}s`;
   return `${seconds}s`;
+}
+
+function parseOffset(offset: string | undefined): number | undefined {
+  if (!offset) return undefined;
+  const match = /^(\d+(?:\.\d+)?)s$/.exec(offset);
+  if (!match) return undefined;
+  const seconds = Number.parseFloat(match[1]);
+  return Number.isFinite(seconds) && seconds >= 0 ? seconds : undefined;
+}
+
+function speakerName(speaker: string | undefined): string {
+  if (!speaker) return "Speaker";
+  const match = /^spk[_:](\d+)$/i.exec(speaker);
+  return match ? `Speaker ${match[1]}` : speaker;
+}
+
+function joinWords(words: string[]): string {
+  return words
+    .join(" ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .replace(/([([{])\s+/g, "$1")
+    .replace(/\s+([)\]}])/g, "$1");
+}
+
+export function extractWordAnnotations(response: TranscriptionResponse): WordAnnotation[] {
+  const words: WordAnnotation[] = [];
+  for (const step of response.steps ?? []) {
+    for (const content of step.content ?? []) {
+      for (const annotation of content.annotations ?? []) {
+        if (annotation.type === "word_info") words.push(annotation);
+      }
+    }
+  }
+  return words;
+}
+
+export function formatStructuredTranscript(
+  annotations: WordAnnotation[],
+  offsetSeconds: number,
+): string {
+  const groups: Array<{ speaker: string; startSeconds: number; words: string[] }> = [];
+
+  for (const annotation of annotations) {
+    const word = annotation.text?.trim();
+    const startSeconds = parseOffset(annotation.start_offset);
+    if (!word || startSeconds === undefined) continue;
+
+    const speaker = speakerName(annotation.speaker);
+    const group = groups.at(-1);
+    if (!group || group.speaker !== speaker) {
+      groups.push({
+        speaker,
+        startSeconds: offsetSeconds + startSeconds,
+        words: [word],
+      });
+    } else {
+      group.words.push(word);
+    }
+  }
+
+  if (groups.length === 0) {
+    throw new Error("Gemini returned no timestamped word annotations.");
+  }
+
+  return groups
+    .map(
+      (group) =>
+        `[${formatTimestamp(group.startSeconds)}] ${group.speaker}: ${joinWords(group.words)}`,
+    )
+    .join("\n\n");
 }
 
 export function safeProviderError(error: unknown): string {
@@ -221,78 +262,88 @@ export function safeProviderError(error: unknown): string {
   return details.join(" ");
 }
 
+async function deleteUploadedFile(client: any, name: string, chunkIndex: number): Promise<void> {
+  try {
+    await client.files.delete({ name });
+  } catch (error) {
+    console.warn(
+      `Could not delete uploaded audio for chunk ${chunkIndex + 1}: ${safeProviderError(error)}`,
+    );
+  }
+}
+
 async function transcribeChunk(
   client: any,
   chunk: AudioChunk,
   index: number,
   total: number,
-  previousTimestamp?: number,
-): Promise<{ text: string; timestamps: number[] }> {
-  console.log(`Transcribing chunk ${index + 1}/${total}...`);
-  const audioData = await Bun.file(chunk.path).arrayBuffer();
-  const base64Audio = Buffer.from(audioData).toString("base64");
+  options: TranscribeOptions,
+): Promise<string> {
+  console.log(`Uploading and transcribing chunk ${index + 1}/${total}...`);
+  let uploadedFile: { mimeType?: string; name?: string; uri?: string } | undefined;
 
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
-    let response: any;
+  try {
     try {
-      response = await client.models.generateContent({
+      uploadedFile = await client.files.upload({
+        file: chunk.path,
+        config: { mimeType: "audio/mp3" },
+      });
+      if (!uploadedFile.uri || !uploadedFile.name) {
+        throw new Error("Gemini did not return an uploaded file URI and name.");
+      }
+
+      const mode =
+        options.mode === "smart"
+          ? { type: "smart" }
+          : {
+              type: "verbatim",
+              diarization_mode: "speaker",
+              timestamp_granularities: ["word"],
+            };
+      const response = (await client.interactions.create({
         model: MODEL_NAME,
-        contents: [
+        input: [
           {
-            role: "user",
-            parts: [
-              { inlineData: { mimeType: "audio/mp3", data: base64Audio } },
-              {
-                text: `Transcribe this audio accurately with speaker labels and timestamps.
-
-Timestamps must be relative to the start of this audio chunk. Start near 00:00 and do not add any full-recording offset.
-
-Rules:
-1. Use consistent speaker names only when the audio provides enough evidence. Otherwise use Speaker 1, Speaker 2, and so on.
-2. Put each speaker turn on its own line as: [MM:SS] Speaker: speech. Use [HH:MM:SS] only if the chunk reaches one hour.
-3. Preserve meaningful false starts and filler words.
-4. Mark relevant non-speech sounds such as [laughs], [sighs], or [inaudible].
-5. Mark overlapping speech when it affects comprehension.
-6. Output only the transcript, with no introduction or summary.`,
-              },
-            ],
+            type: "audio",
+            uri: uploadedFile.uri,
+            mime_type: uploadedFile.mimeType ?? "audio/mp3",
           },
         ],
-      });
+        generation_config: {
+          transcription_config: {
+            language_codes: options.languageCodes,
+            custom_vocabulary: options.customVocabulary,
+            mode,
+          },
+        },
+      })) as TranscriptionResponse;
+
+      if (options.mode === "smart") {
+        const text = response.output_text?.trim();
+        if (!text) throw new Error(`Gemini returned no transcript for chunk ${index + 1}.`);
+        return text;
+      }
+
+      return formatStructuredTranscript(
+        extractWordAnnotations(response),
+        chunk.offsetSeconds,
+      );
     } catch (error) {
       throw new Error(
-        `Gemini request failed for chunk ${index + 1}: ${safeProviderError(error)}`,
+        `Gemini request failed for chunk ${index + 1}: ${
+          error instanceof Error ? error.message : safeProviderError(error)
+        }`,
       );
     }
-
-    const parts = response.candidates?.[0]?.content?.parts ?? [];
-    const text = parts
-      .map((part: { text?: string }) => part.text ?? "")
-      .join("")
-      .trim();
-    if (!text) throw new Error(`Gemini returned no transcript for chunk ${index + 1}`);
-
-    try {
-      return correctChunkTimestamps(
-        text,
-        chunk.offsetSeconds,
-        chunk.durationSeconds,
-        previousTimestamp,
-      );
-    } catch (error) {
-      if (!(error instanceof TimestampValidationError)) throw error;
-      if (attempt === 3) {
-        throw new Error(
-          `Timestamp validation failed for chunk ${index + 1} after 3 attempts: ${error.message}`,
-        );
-      }
-      console.warn(
-        `Timestamp validation failed for chunk ${index + 1} (attempt ${attempt}/3): ${error.message}; retrying...`,
-      );
+  } finally {
+    if (uploadedFile?.name) {
+      await deleteUploadedFile(client, uploadedFile.name, index);
     }
   }
+}
 
-  throw new Error(`Timestamp validation failed for chunk ${index + 1}`);
+function formatList(values: string[]): string {
+  return values.length === 0 ? "[]" : JSON.stringify(values);
 }
 
 async function transcribe(inputPath: string, options: TranscribeOptions): Promise<void> {
@@ -317,6 +368,7 @@ async function transcribe(inputPath: string, options: TranscribeOptions): Promis
   console.log(`Input: ${absoluteInput}`);
   console.log(`Duration: ${formatDuration(duration)}`);
   console.log(`Model: ${MODEL_NAME}`);
+  console.log(`Mode: ${options.mode}`);
 
   try {
     const normalizedPath = join(workDir, "normalized.mp3");
@@ -331,17 +383,10 @@ async function transcribe(inputPath: string, options: TranscribeOptions): Promis
     const { GoogleGenAI } = await import("@google/genai");
     const client = new GoogleGenAI({ apiKey: resolveApiKey() });
     const transcripts: string[] = [];
-    let previousTimestamp: number | undefined;
     for (const [index, chunk] of chunks.entries()) {
-      const transcript = await transcribeChunk(
-        client,
-        chunk,
-        index,
-        chunks.length,
-        previousTimestamp,
+      transcripts.push(
+        await transcribeChunk(client, chunk, index, chunks.length, options),
       );
-      transcripts.push(transcript.text);
-      previousTimestamp = transcript.timestamps.at(-1) ?? previousTimestamp;
     }
 
     const output = `---
@@ -349,6 +394,9 @@ source: ${JSON.stringify(basename(absoluteInput))}
 duration_seconds: ${Math.round(duration)}
 chunks: ${chunks.length}
 model: ${JSON.stringify(MODEL_NAME)}
+mode: ${JSON.stringify(options.mode)}
+language_codes: ${formatList(options.languageCodes)}
+custom_vocabulary: ${formatList(options.customVocabulary)}
 transcribed: ${JSON.stringify(new Date().toISOString())}
 ---
 
@@ -368,11 +416,19 @@ ${transcripts.join("\n\n---\n\n")}
   }
 }
 
+function stringArray(value: string | string[] | undefined): string[] {
+  if (value === undefined) return [];
+  return (Array.isArray(value) ? value : [value]).map((item) => item.trim()).filter(Boolean);
+}
+
 async function main(): Promise<void> {
   const { values, positionals } = parseArgs({
     args: Bun.argv.slice(2),
     options: {
       "chunk-minutes": { type: "string", default: String(DEFAULT_CHUNK_MINUTES) },
+      language: { type: "string", multiple: true },
+      vocabulary: { type: "string", multiple: true },
+      smart: { type: "boolean", default: false },
       output: { type: "string" },
       keep: { type: "boolean", default: false },
       help: { type: "boolean", short: "h", default: false },
@@ -387,10 +443,17 @@ Usage:
   bun run transcribe.ts <audio-file> [options]
 
 Options:
-  --chunk-minutes <n>  Chunk duration from 1 to 60 minutes (default: ${DEFAULT_CHUNK_MINUTES})
+  --chunk-minutes <n>  Chunk duration in minutes (default: ${DEFAULT_CHUNK_MINUTES})
+  --language <code>    BCP-47 language hint. Repeat for each known language.
+  --vocabulary <term>  Domain term, acronym, or name. Repeat for each term.
+  --smart              Return a cleaned transcript without speaker labels or timestamps.
   --output <path>      Markdown output path (default: beside input)
   --keep               Keep normalized and chunk audio
   -h, --help           Show this help
+
+Chunk limits:
+  Verbatim output uses speaker diarization and word timestamps. Gemini limits it to ${STRUCTURED_MAX_CHUNK_MINUTES} minutes per request.
+  --smart omits those features and supports up to ${SMART_MAX_CHUNK_MINUTES} minutes per request.
 
 Credentials:
   GEMINI_API_KEY (preferred), GOOGLE_API_KEY, or OPENCODE_GOOGLE_API_KEY
@@ -402,11 +465,28 @@ Supported formats: ${SUPPORTED_FORMATS.join(", ")}`);
     return;
   }
 
-  const inputPath = positionals[0];
+  const mode: TranscriptionMode = values.smart ? "smart" : "verbatim";
+  const maximumChunkMinutes =
+    mode === "smart" ? SMART_MAX_CHUNK_MINUTES : STRUCTURED_MAX_CHUNK_MINUTES;
   const chunkMinutes = Number.parseInt(values["chunk-minutes"] as string, 10);
-  if (!Number.isInteger(chunkMinutes) || chunkMinutes < 1 || chunkMinutes > 60) {
-    throw new Error("--chunk-minutes must be an integer from 1 to 60.");
+  if (!Number.isInteger(chunkMinutes) || chunkMinutes < 1 || chunkMinutes > maximumChunkMinutes) {
+    throw new Error(
+      `--chunk-minutes must be an integer from 1 to ${maximumChunkMinutes} for ${mode} mode.`,
+    );
   }
+
+  const languageCodes = stringArray(values.language);
+  const customVocabulary = stringArray(values.vocabulary);
+  if (customVocabulary.length > 1000) {
+    throw new Error("--vocabulary accepts at most 1000 terms.");
+  }
+  if (mode === "verbatim" && customVocabulary.length > 0) {
+    throw new Error(
+      "--vocabulary cannot be combined with verbatim mode because Gemini rejects custom vocabulary with word timestamps. Use --smart for vocabulary-biased transcription.",
+    );
+  }
+
+  const inputPath = positionals[0];
   const inputExtension = extname(inputPath);
   const defaultOutput = join(
     dirname(inputPath),
@@ -415,7 +495,10 @@ Supported formats: ${SUPPORTED_FORMATS.join(", ")}`);
 
   await transcribe(inputPath, {
     chunkMinutes,
+    customVocabulary,
     keep: values.keep as boolean,
+    languageCodes,
+    mode,
     outputPath: (values.output as string | undefined) ?? defaultOutput,
   });
 }
