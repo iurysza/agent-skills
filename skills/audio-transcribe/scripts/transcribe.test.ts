@@ -3,12 +3,20 @@ import {
   extractWordAnnotations,
   formatStructuredTranscript,
   formatTimestamp,
+  retryAfterMilliseconds,
 } from "./transcribe.ts";
 
 describe("formatTimestamp", () => {
   test("uses hours after the first hour", () => {
     expect(formatTimestamp(65)).toBe("01:05");
     expect(formatTimestamp(3665)).toBe("01:01:05");
+  });
+});
+
+describe("retryAfterMilliseconds", () => {
+  test("reads Gemini's directed rate-limit delay", () => {
+    expect(retryAfterMilliseconds(new Error("Retry in 59.218353713s."))).toBe(59219);
+    expect(retryAfterMilliseconds(new Error("quota exceeded"))).toBeUndefined();
   });
 });
 

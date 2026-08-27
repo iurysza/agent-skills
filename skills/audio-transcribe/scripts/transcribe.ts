@@ -262,6 +262,13 @@ export function safeProviderError(error: unknown): string {
   return details.join(" ");
 }
 
+export function retryAfterMilliseconds(error: unknown): number | undefined {
+  if (!(error instanceof Error)) return undefined;
+  const match = /retry in (\d+(?:\.\d+)?)s/i.exec(error.message);
+  if (!match) return undefined;
+  return Math.ceil(Number.parseFloat(match[1]) * 1000);
+}
+
 async function deleteUploadedFile(client: any, name: string, chunkIndex: number): Promise<void> {
   try {
     await client.files.delete({ name });
@@ -300,7 +307,7 @@ async function transcribeChunk(
               diarization_mode: "speaker",
               timestamp_granularities: ["word"],
             };
-      const response = (await client.interactions.create({
+      const request = {
         model: MODEL_NAME,
         input: [
           {
@@ -316,7 +323,19 @@ async function transcribeChunk(
             mode,
           },
         },
-      })) as TranscriptionResponse;
+      };
+      let response: TranscriptionResponse;
+      try {
+        response = (await client.interactions.create(request)) as TranscriptionResponse;
+      } catch (error) {
+        const retryAfter = retryAfterMilliseconds(error);
+        if (retryAfter === undefined) throw error;
+        console.warn(
+          `Gemini rate limit for chunk ${index + 1}. Retrying after Gemini's ${Math.ceil(retryAfter / 1000)} second delay...`,
+        );
+        await Bun.sleep(retryAfter);
+        response = (await client.interactions.create(request)) as TranscriptionResponse;
+      }
 
       if (options.mode === "smart") {
         const text = response.output_text?.trim();

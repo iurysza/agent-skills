@@ -51,7 +51,7 @@ Options:
 - `--keep`: retain normalized audio and chunk files beside the transcript.
 - `--help`: show usage.
 
-Default verbatim mode requests speaker diarization and word timestamps. Gemini limits those requests to 30 minutes of audio per request, so the CLI splits longer recordings. The live API rejects custom vocabulary with word timestamps, so the CLI fails clearly when `--vocabulary` is used without `--smart`. `--smart` supports chunks up to 60 minutes because it does not request either feature.
+Default verbatim mode requests speaker diarization and word timestamps. Gemini limits those requests to 30 minutes of audio per request, so the CLI splits longer recordings. The live API rejects custom vocabulary with word timestamps, so the CLI fails clearly when `--vocabulary` is used without `--smart`. `--smart` supports chunks up to 60 minutes because it does not request either feature. If Gemini returns a rate-limit delay, the CLI waits for that delay and retries the interaction once.
 
 Supported inputs: MP3, WAV, M4A, OGG, FLAC, and WebM.
 
