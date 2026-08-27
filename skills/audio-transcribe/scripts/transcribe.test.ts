@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   extractWordAnnotations,
+  formatChunkTranscript,
   formatStructuredTranscript,
   formatTimestamp,
   retryAfterMilliseconds,
@@ -10,6 +11,30 @@ describe("formatTimestamp", () => {
   test("uses hours after the first hour", () => {
     expect(formatTimestamp(65)).toBe("01:05");
     expect(formatTimestamp(3665)).toBe("01:01:05");
+  });
+});
+
+describe("formatChunkTranscript", () => {
+  test("labels speaker scope when Gemini must split the recording", () => {
+    expect(
+      formatChunkTranscript(
+        "[00:00] Speaker 0: Hello.",
+        { path: "chunk.mp3", offsetSeconds: 1800, durationSeconds: 95 },
+        1,
+        2,
+      ),
+    ).toBe("## Chunk 2 (30:00 to 31:35)\n\n[00:00] Speaker 0: Hello.");
+  });
+
+  test("does not add a chunk heading to a single request", () => {
+    expect(
+      formatChunkTranscript(
+        "[00:00] Speaker 0: Hello.",
+        { path: "audio.mp3", offsetSeconds: 0, durationSeconds: 20 },
+        0,
+        1,
+      ),
+    ).toBe("[00:00] Speaker 0: Hello.");
   });
 });
 

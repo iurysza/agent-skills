@@ -249,6 +249,18 @@ export function formatStructuredTranscript(
     .join("\n\n");
 }
 
+export function formatChunkTranscript(
+  transcript: string,
+  chunk: AudioChunk,
+  index: number,
+  total: number,
+): string {
+  if (total === 1) return transcript;
+  const start = formatTimestamp(chunk.offsetSeconds);
+  const end = formatTimestamp(chunk.offsetSeconds + chunk.durationSeconds);
+  return `## Chunk ${index + 1} (${start} to ${end})\n\n${transcript}`;
+}
+
 export function safeProviderError(error: unknown): string {
   if (!error || typeof error !== "object") return "ProviderError";
   const value = error as Record<string, unknown>;
@@ -407,9 +419,14 @@ async function transcribe(inputPath: string, options: TranscribeOptions): Promis
     const client = new GoogleGenAI({ apiKey: resolveApiKey() });
     const transcripts: string[] = [];
     for (const [index, chunk] of chunks.entries()) {
-      transcripts.push(
-        await transcribeChunk(client, chunk, index, chunks.length, options),
+      const transcript = await transcribeChunk(
+        client,
+        chunk,
+        index,
+        chunks.length,
+        options,
       );
+      transcripts.push(formatChunkTranscript(transcript, chunk, index, chunks.length));
     }
 
     const output = `---
@@ -425,7 +442,7 @@ transcribed: ${JSON.stringify(new Date().toISOString())}
 
 # Transcript: ${basename(absoluteInput, extension)}
 
-${transcripts.join("\n\n---\n\n")}
+${transcripts.join("\n\n")}
 `;
     await Bun.write(outputPath, output);
     const outputFile = Bun.file(outputPath);

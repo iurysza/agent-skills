@@ -61,7 +61,7 @@ Default output contains source metadata, duration, model, mode, language hints, 
 
 `--smart` produces clean text from `interaction.output_text`. It does not invent timestamps or speaker identity that the API did not return.
 
-Speaker labels identify distinct voices, not verified people. Preserve labels such as `Speaker 1` when names are uncertain. Do not present inferred identities as facts.
+Speaker labels identify distinct voices within one Gemini request, not verified people. The CLI adds a heading for each chunk because Gemini can reset labels after a split. Preserve labels such as `Speaker 1` when names are uncertain. Do not present inferred identities as facts.
 
 ## Verification
 
