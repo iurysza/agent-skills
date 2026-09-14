@@ -1,0 +1,65 @@
+# Always-latest skill fan-out. This is not a lockfile: no SHA pins, no semver.
+# Each sync overlays catalog skill directories from skills/ on main HEAD into
+# the consumer target (default .agents/skills/<name>/SKILL.md) so Cursor Cloud
+# Agents and other runtimes discover them. Local skill directories whose names
+# are not in the catalog are left in place.
+#
+# Add a consumer: append an enabled entry and merge to main.
+# Remove a consumer: delete the entry or set enabled: false.
+
+default_path: .agents/skills
+source: skills
+pr_branch: chore/vendor-agent-skills
+
+consumers:
+  - repo: iurysza/termscope
+    notes: Active coding repo with AGENTS.md and release-please.
+
+  - repo: iurysza/herdr-tab-smart-rename
+    notes: Active Herdr plugin with AGENTS.md and release-please.
+
+  - repo: iurysza/herdr-mosaic
+    notes: Active Herdr plugin with AGENTS.md and release-please.
+
+  - repo: iurysza/herdr-pane-layouts
+    notes: Active Herdr plugin with AGENTS.md.
+
+  - repo: iurysza/module-graph
+    notes: Active Gradle plugin with AGENTS.md and release-please.
+
+  - repo: iurysza/clockwork
+    notes: Repo-root skills/clockwork is the product skill embedded by clockwork setup (user-level ~/.agents/skills and project .cursor/skills). Catalog overlay uses .agents/skills and does not touch skills/clockwork.
+
+  - repo: iurysza/tab-declutter
+    notes: Active extension with AGENTS.md.
+
+  - repo: iurysza/android-use
+    notes: Active agent CLI with AGENTS.md. Root SKILL.md is the project skill, not a catalog tree.
+
+  - repo: iurysza/ultra
+    notes: Active macOS tool with AGENTS.md.
+
+  - repo: iurysza/visual-artifact-renderer
+    notes: Active renderer with AGENTS.md and release-please. Overlay keeps local impeccable and shadcn under .agents/skills.
+
+  - repo: iurysza/pi-extensions
+    notes: Active Pi monorepo with AGENTS.md. Overlay at repo-root .agents/skills; package-local skills trees are untouched.
+
+  - repo: iurysza/plannotator
+    notes: Active agent-review product with AGENTS.md and existing .agents/skills locals (release, pierre-guard, and others). Overlay by name.
+
+  # Investigated, not enabled.
+  - repo: iurysza/pi-ext
+    enabled: false
+    notes: Standalone predecessor folded into iurysza/pi-extensions.
+
+  - repo: iurysza/pi-ghost-in-the-machine
+    enabled: false
+    notes: Lives as a package inside iurysza/pi-extensions.
+
+  # Intentionally omitted (not in this GitHub account's public tree, or not a consumer):
+  # - iurysza/agent-skills (this catalog; source, not consumer)
+  # - iurysza/herdr (no separate public repo; plugins are herdr-*)
+  # - iurysza/agents (inaccessible here; SHA-cached upstream plus local-only skills — do not clobber)
+  # - flue-pi-agent (inaccessible here; pin/lock Docker bake — leave that flow alone)
+  # - iurysza/iurysza (profile README, not an agent-worked product)
