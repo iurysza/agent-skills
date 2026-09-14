@@ -32,6 +32,8 @@ Pin-based consumers (for example a Docker image that bakes `agent-skills.lock`) 
 
 Local skill directories whose names are not in this catalog are left in place, so a repo can keep project-only skills next to the overlay.
 
+Consumer CI tip: exclude `.agents/**` from test, lint, and format globs (vitest/jest/bun test, biome/eslint/oxlint, prettier). The sync skips `*.{test,spec}.*` and similar test-only files, but skill scripts can still trip consumer tooling if those trees are included.
+
 ### Consumers
 
 Enabled repos are listed in [`consumers.yml`](consumers.yml). That file is the editable manifest. Agent-worked Iury repos with `AGENTS.md` (and recent agent/release workflows) are included unless they are this catalog, a folded predecessor, or a pin-based/SHA-cached tree that must not be overwritten.

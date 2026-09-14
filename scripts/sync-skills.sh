@@ -25,7 +25,9 @@ Usage:
 vendor      Overlay each catalog skill directory into DEST (default source:
             <repo>/skills). DEST/<name>/ is replaced for catalog names only.
             Other directories in DEST (local-only skills) are left in place.
-            No lockfile or SHA pin is written.
+            Test-only files (*/*.{test,spec}.*, test_*.py, *_test.py, *_test.go)
+            are skipped so consumer CI does not pick them up. No lockfile or
+            SHA pin is written.
 
 print-consumers
             Print consumers as TSV: repo<TAB>path<TAB>enabled.
@@ -143,19 +145,45 @@ skill_names() {
   done < <(skill_dirs "$1")
 }
 
+
+# Test-only paths that must not be overlaid into consumers (their CI often
+# picks up **/*.{test,spec}.* under .agents/). Keep these in the catalog for
+# local skill development; skip them on vendor/fan-out.
+strip_test_only_files() {
+  local root="$1"
+  [[ -d "$root" ]] || return 0
+  find "$root" -type f \( -name '*.test.*' -o -name '*.spec.*' -o -name 'test_*.py' -o -name '*_test.py' -o -name '*_test.go' \) -delete
+}
+
+copy_skill_dir() {
+  local src="$1" dest="$2"
+  rm -rf "$dest"
+  cp -a "$src" "$dest"
+  strip_test_only_files "$dest"
+}
+
 catalog_current() {
-  local source="$1" dest="$2" dir name
+  local source="$1" dest="$2" dir name tmp
   [[ -d "$dest" ]] || return 1
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/skills-catalog-compare.XXXXXX")"
   while IFS= read -r dir; do
     name="$(basename "$dir")"
-    [[ -d "$dest/$name" ]] || return 1
-    diff -rq "$dir" "$dest/$name" >/dev/null || return 1
+    if [[ ! -d "$dest/$name" ]]; then
+      rm -rf "$tmp"
+      return 1
+    fi
+    copy_skill_dir "$dir" "$tmp/$name"
+    if ! diff -rq "$tmp/$name" "$dest/$name" >/dev/null; then
+      rm -rf "$tmp"
+      return 1
+    fi
   done < <(skill_dirs "$source")
+  rm -rf "$tmp"
 }
 
 vendor_tree() {
   local source="$1" dest="$2" dry_run="$3"
-  local dir name count
+  local dir name count compare_tmp
   [[ -d "$source" ]] || die "source is not a directory: $source"
   [[ -n "$dest" ]] || die "destination is empty"
   [[ "$dest" != "/" ]] || die "refusing to write /"
@@ -169,14 +197,19 @@ vendor_tree() {
       log "dry-run: would create $dest and overlay $count skills from $source"
     else
       log "dry-run: would overlay $count catalog skills into $dest (local-only dirs kept)"
+      compare_tmp="$(mktemp -d "${TMPDIR:-/tmp}/skills-dry-compare.XXXXXX")"
       while IFS= read -r dir; do
         name="$(basename "$dir")"
         if [[ ! -d "$dest/$name" ]]; then
           log "  + $name"
-        elif ! diff -rq "$dir" "$dest/$name" >/dev/null; then
-          log "  ~ $name"
+        else
+          copy_skill_dir "$dir" "$compare_tmp/$name"
+          if ! diff -rq "$compare_tmp/$name" "$dest/$name" >/dev/null; then
+            log "  ~ $name"
+          fi
         fi
       done < <(skill_dirs "$source")
+      rm -rf "$compare_tmp"
     fi
     return 0
   fi
@@ -184,10 +217,9 @@ vendor_tree() {
   mkdir -p "$dest"
   while IFS= read -r dir; do
     name="$(basename "$dir")"
-    rm -rf "$dest/$name"
-    cp -a "$dir" "$dest/$name"
+    copy_skill_dir "$dir" "$dest/$name"
   done < <(skill_dirs "$source")
-  log "overlaid $count catalog skills into $dest"
+  log "overlaid $count catalog skills into $dest (test-only files skipped)"
 }
 
 cmd_vendor() {
