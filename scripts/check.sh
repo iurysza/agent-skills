@@ -4,6 +4,8 @@ set -euo pipefail
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo"
 
+"$repo/scripts/sync-skills-test.sh"
+
 if command -v skills-ref >/dev/null 2>&1; then
   validator=(skills-ref)
 elif command -v uvx >/dev/null 2>&1; then

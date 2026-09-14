@@ -1,0 +1,30 @@
+name: Vendor agent-skills
+description: Overlay iurysza/agent-skills catalog directories into a project skills folder. Always-latest; no lockfile. Local skill directories with other names are kept.
+
+inputs:
+  dest:
+    description: Destination directory relative to the current workspace (Cursor discovery path).
+    required: false
+    default: .agents/skills
+  dry-run:
+    description: Plan the overlay without writing files (true/false).
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Overlay catalog skills
+      shell: bash
+      env:
+        DEST: ${{ inputs.dest }}
+        DRY_RUN: ${{ inputs.dry-run }}
+      run: |
+        set -euo pipefail
+        root="$(cd "${GITHUB_ACTION_PATH}/../../.." && pwd)"
+        dest="${GITHUB_WORKSPACE}/${DEST}"
+        args=(vendor --source "${root}/skills" --dest "${dest}")
+        if [[ "${DRY_RUN}" == "true" ]]; then
+          args+=(--dry-run)
+        fi
+        "${root}/scripts/sync-skills.sh" "${args[@]}"

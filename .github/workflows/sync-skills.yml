@@ -1,0 +1,82 @@
+name: Sync skills to consumers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - 'consumers.yml'
+      - 'scripts/sync-skills.sh'
+      - 'scripts/sync-skills-test.sh'
+      - '.github/workflows/sync-skills.yml'
+      - '.github/actions/vendor-skills/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Plan consumer PRs without pushing or opening them
+        type: boolean
+        default: false
+      consumer:
+        description: Optional owner/name to sync only that consumer
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Plan consumer PRs without pushing or opening them
+        type: boolean
+        default: false
+      consumer:
+        description: Optional owner/name to sync only that consumer
+        required: false
+        type: string
+    secrets:
+      SKILLS_SYNC_TOKEN:
+        required: false
+
+concurrency:
+  group: sync-skills
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  fanout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out catalog
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Require SKILLS_SYNC_TOKEN
+        if: ${{ inputs.dry_run != true }}
+        env:
+          SKILLS_SYNC_TOKEN: ${{ secrets.SKILLS_SYNC_TOKEN }}
+        run: |
+          if [[ -z "${SKILLS_SYNC_TOKEN}" ]]; then
+            {
+              echo '::error::SKILLS_SYNC_TOKEN is not set.'
+              echo 'Cross-repo PRs need a PAT or GitHub App token with contents:write'
+              echo 'and pull-requests:write on each enabled consumer listed in consumers.yml.'
+              echo 'Add it as the agent-skills repository secret SKILLS_SYNC_TOKEN.'
+              echo 'GITHUB_TOKEN cannot open pull requests in other repositories.'
+              echo 'Use workflow_dispatch with dry_run=true to plan without credentials.'
+            } >&2
+            exit 1
+          fi
+
+      - name: Fan out skills
+        env:
+          SKILLS_SYNC_TOKEN: ${{ secrets.SKILLS_SYNC_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run == true }}
+          ONLY_CONSUMER: ${{ inputs.consumer }}
+        run: |
+          set -euo pipefail
+          args=(fanout)
+          if [[ "${DRY_RUN}" == "true" ]]; then
+            args+=(--dry-run)
+          fi
+          if [[ -n "${ONLY_CONSUMER}" ]]; then
+            args+=(--only "${ONLY_CONSUMER}")
+          fi
+          ./scripts/sync-skills.sh "${args[@]}"
