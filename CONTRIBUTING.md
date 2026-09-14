@@ -18,4 +18,6 @@ The repository tracks a rolling `main` branch and does not publish versioned rel
 3. Do not add a lockfile or SHA pin. The sync overlays catalog skill directories and keeps local-only skill names.
 4. Run `./scripts/sync-skills-test.sh` and `./scripts/check.sh`.
 
+Consumer repos should exclude `.agents/**` from lint/test/format configs so vendored skill scripts do not fail CI. Sync already omits test-only files (`*.{test,spec}.*`, `test_*.py`, `*_test.py`, `*_test.go`).
+
 Cross-repo PRs need the `SKILLS_SYNC_TOKEN` repository secret (see the README). This catalog is the source; do not add `agent-skills` as a consumer.

@@ -34,6 +34,8 @@ description: Test skill beta.
 # Beta
 EOF
 echo 'extra' >"$src/beta/notes.txt"
+echo 'should-not-vendor' >"$src/beta/notes.test.ts"
+echo 'should-not-vendor' >"$src/beta/test_helper.py"
 
 dest="$tmp/consumer/.agents/skills"
 mkdir -p "$dest/local-only" "$dest/alpha"
@@ -58,6 +60,8 @@ EOF
 grep -q '# Alpha' "$dest/alpha/SKILL.md" || fail "alpha not replaced"
 [[ -f "$dest/beta/SKILL.md" ]] || fail "beta missing after vendor"
 [[ -f "$dest/beta/notes.txt" ]] || fail "beta bundled file missing"
+[[ ! -e "$dest/beta/notes.test.ts" ]] || fail "test-only *.test.* was vendored"
+[[ ! -e "$dest/beta/test_helper.py" ]] || fail "test-only test_*.py was vendored"
 [[ -f "$dest/local-only/SKILL.md" ]] || fail "local-only skill was clobbered"
 grep -q 'Must survive overlay' "$dest/local-only/SKILL.md" || fail "local-only content changed"
 pass "overlay replaces catalog skills and keeps local-only dirs"
