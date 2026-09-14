@@ -12,4 +12,7 @@ This repository is the canonical source for Iury Souza's shareable Agent Skills.
 - Preserve upstream attribution in `THIRD_PARTY_NOTICES.md` and the root `LICENSE`.
 - Run `./scripts/check.sh` before committing.
 
+## Git commits
+Never include Cursor (or any Cursor agent/bot) as git author, committer, or in a Co-authored-by / similar trailer.
+
 `main` is a rolling catalog. Do not create version tags or GitHub releases.
