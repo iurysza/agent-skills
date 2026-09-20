@@ -101,6 +101,7 @@ Every skill sets one `metadata.category`: `writing-style`, `planning-architectur
 
 | Skill | Invocation | Description |
 | --- | --- | --- |
+| [`architecture-knowledge-base`](skills/architecture-knowledge-base/SKILL.md) | model-invoked | Create source-backed architecture docs shaped around the codebase and its readers. |
 | [`brainstorming`](skills/brainstorming/SKILL.md) | model-invoked | Explore and approve a design direction before implementation. |
 | [`coding-standards`](skills/coding-standards/SKILL.md) | model-invoked | Language-neutral correct-by-construction engineering standards. |
 | [`decision-room`](skills/decision-room/SKILL.md) | model-invoked | Compare competing arguments through topic-specific voices and test what survives. |
