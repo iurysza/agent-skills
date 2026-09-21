@@ -9,4 +9,5 @@ __pycache__/
 coverage/
 dist/
 build/
-ai-artifacts/
+ai-artifacts/*
+!ai-artifacts/_index.md
