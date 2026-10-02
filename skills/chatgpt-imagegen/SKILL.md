@@ -65,7 +65,7 @@ Optional masked edit:
 
 ## Important options
 
-- `--model`: defaults to `gpt-image-2`
+- `--model`: defaults to `gpt-image-2.5-sunburst`, the newest model. It accepts `--background transparent`. `gpt-image-2` rejects transparent backgrounds, so pass `--model gpt-image-2` only when you need it
 - `--size`: supported dimensions or `auto`
 - `--quality`: GPT Image uses `auto`, `low`, `medium`, or `high`
 - `--background`: `auto`, `transparent`, or `opaque`

@@ -30,8 +30,9 @@ from contextlib import ExitStack
 from pathlib import Path
 from typing import Any
 
-DEFAULT_MODEL = "gpt-image-2"
+DEFAULT_MODEL = "gpt-image-2.5-sunburst"
 MODEL_CHOICES = [
+    "gpt-image-2.5-sunburst",
     "gpt-image-2",
     "gpt-image-1.5",
     "gpt-image-1",
@@ -95,7 +96,8 @@ def is_dalle(model: str) -> bool:
 
 
 def is_gpt_image_2(model: str) -> bool:
-    return model == "gpt-image-2"
+    """True for the gpt-image-2 family (gpt-image-2, gpt-image-2.5-sunburst), which omit input_fidelity."""
+    return model.startswith("gpt-image-2")
 
 
 def validate_request_options(
@@ -234,7 +236,7 @@ def add_common_args(
         parser.add_argument(
             "--input-fidelity",
             choices=["high", "low"],
-            help="Edit fidelity hint for models that support it. gpt-image-2 does not, so this CLI omits it there.",
+            help="Edit fidelity hint for models that support it. The gpt-image-2 family does not, so this CLI omits it there.",
         )
 
 
@@ -441,7 +443,7 @@ def edit_image(
         if output_compression is not None:
             kwargs["output_compression"] = output_compression
         if input_fidelity and is_gpt_image_2(model):
-            print("Warning: gpt-image-2 does not support --input-fidelity; omitting it.", file=sys.stderr)
+            print(f"Warning: {model} does not support --input-fidelity; omitting it.", file=sys.stderr)
         elif input_fidelity:
             kwargs["input_fidelity"] = input_fidelity
 
@@ -478,7 +480,7 @@ def edit_parser(program: str) -> argparse.ArgumentParser:
     parser.add_argument(
         "--input-fidelity",
         choices=["high", "low"],
-        help="Edit fidelity hint for models that support it. gpt-image-2 does not, so this CLI omits it there.",
+        help="Edit fidelity hint for models that support it. The gpt-image-2 family does not, so this CLI omits it there.",
     )
     return parser
 
