@@ -39,6 +39,18 @@ Contains public sector information licensed under the Open Government Licence v3
 - Source: <https://www.gov.uk/guidance/content-design/writing-for-gov-uk>
 - Licence: <https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/>
 
+## Graphic Detail craft notes
+
+`graphic-detail` summarizes public chart-craft notes. It does not copy article text, posters, or internal style sheets.
+
+- Sarah Leo, Elizabeth Lees, Helen Atkinson, Alex Selby-Boothroyd, and Rosamund Pearce on The Economist's Medium and Economist Education pages
+- Financial Times Visual Vocabulary: <https://ft-interactive.github.io/visual-vocabulary/>
+- John Burn-Murdoch, via Hanna Duggal, GIJN, 20 June 2025
+- Amanda Cox, Simply Statistics interview, 1 June 2012, and the Ohio State lecture abstract
+- Archie Tse, Malofiej 2016 slides: <https://github.com/archietse/malofiej-2016>
+
+The shortlist, the conflicts between those notes, and the pages that were not readable are in `skills/graphic-detail/references.md`.
+
 ## Anthropic skills
 
 `frontend-design` is copied from [anthropics/skills](https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design). Copyright Anthropic. Apache 2.0 licensed; see `skills/frontend-design/LICENSE.txt`.

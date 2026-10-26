@@ -60,6 +60,7 @@ Each skill sets one `metadata.category`, such as `development`, `visual-media` o
 | --- | --- | --- |
 | [`better-ui`](skills/better-ui/SKILL.md) | model-invoked | Polish interface surfaces, motion, icons, and micro-interactions. |
 | [`frontend-design`](skills/frontend-design/SKILL.md) | model-invoked | Give new or reworked UI a deliberate visual direction instead of a templated look. |
+| [`graphic-detail`](skills/graphic-detail/SKILL.md) | model-invoked | Build editorial charts, maps, small multiples, and visual essays with print-style restraint. |
 
 ### Writing
 
