@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A harness is a control system: reading Böckeler for the talk</title>
+<style>
+@font-face{font-family:Satoshi;font-weight:400;src:url(data:font/woff2;base64,__SAT400__) format("woff2")}
+@font-face{font-family:Satoshi;font-weight:500;src:url(data:font/woff2;base64,__SAT500__) format("woff2")}
+@font-face{font-family:"Commit Mono";font-weight:400;src:url(data:font/woff2;base64,__MONO__) format("woff2")}
+:root{
+  --paper:#eceef0; --paper-2:#e2e5e9; --ink:#14161b; --mute:#5e6672; --hair:#c5cad1;
+  --ff:#2448c8; --fb:#d9480f;
+  --sans:Satoshi, system-ui, sans-serif; --mono:"Commit Mono", ui-monospace, monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 18px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration-color:var(--hair);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ink)}
+:focus-visible{outline:2px solid var(--ff);outline-offset:3px}
+.label{font:400 12px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+em{font-style:normal;border-bottom:1px solid var(--hair)}
+.ff{color:var(--ff)} .fb{color:var(--fb)}
+
+/* hero */
+.hero{padding:9vh 6vw 6vh;max-width:1400px;margin:0 auto}
+.hero h1{font-weight:500;font-size:clamp(52px,8.4vw,128px);line-height:.92;letter-spacing:-.045em;margin:28px 0 36px}
+.hero h1 span{display:block}
+.hero h1 .dash{color:var(--mute)}
+.standfirst{max-width:640px;font-size:22px;line-height:1.45;margin:0}
+.meta{display:flex;gap:32px;flex-wrap:wrap;margin-top:40px;padding-top:18px;border-top:1px solid var(--hair)}
+.meta div{max-width:340px;font-size:14px;color:var(--mute)}
+.meta b{display:block;font-weight:500;color:var(--ink)}
+.legend{display:flex;gap:28px;align-items:center;font:400 13px var(--mono);color:var(--mute)}
+.legend svg{vertical-align:middle;margin-right:8px}
+
+/* scrolly */
+.scrolly{display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:0 4vw;max-width:1400px;margin:0 auto;padding:0 6vw}
+.steps{padding:10vh 0 30vh}
+.step{min-height:78vh;display:flex;flex-direction:column;justify-content:center;opacity:.28;transition:opacity .4s}
+.step.on{opacity:1}
+.step .label{margin-bottom:14px}
+.step h2{font-weight:500;font-size:34px;line-height:1.1;letter-spacing:-.02em;margin:0 0 16px}
+.step p{margin:0 0 14px}
+.step blockquote{margin:18px 0 0;padding:0 0 0 18px;border-left:2px solid var(--ink);font-size:19px;line-height:1.45}
+.step blockquote cite{display:block;margin-top:6px;font:400 12px var(--mono);color:var(--mute);font-style:normal}
+.stage{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.stage figure{margin:0;width:100%}
+.stage figcaption{display:flex;justify-content:space-between;margin-top:10px}
+
+/* schematic */
+#sch{width:100%;height:auto;overflow:visible}
+#sch text{font-family:var(--mono);font-size:13px;fill:var(--ink)}
+#sch .t-mute{fill:var(--mute)}
+#sch .t-ff{fill:var(--ff)} #sch .t-fb{fill:var(--fb)}
+#sch [data-from]{opacity:0;transition:opacity .55s ease}
+#sch [data-from].in{opacity:1}
+#sch [data-from].fresh{transition-delay:.1s}
+.pill rect{fill:var(--paper);stroke-width:1.25;transition:stroke-width .4s, stroke-dasharray .4s}
+.pill.g rect{stroke:var(--ff)} .pill.s rect{stroke:var(--fb)}
+.wire{fill:none;stroke-width:1.25;transition:stroke-dasharray .4s, stroke-width .4s}
+.wire.g{stroke:var(--ff)} .wire.s{stroke:var(--fb)}
+#sch.typed .k-i rect, #sch.typed .wire.k-i{stroke-dasharray:5 4}
+#sch.typed .k-c rect, #sch.typed .wire.k-c{stroke-width:2.25}
+.mark circle{fill:var(--ink)} .mark text{fill:var(--paper)!important;font-size:12px!important}
+.climb{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-dasharray:1 6;stroke-linecap:round}
+
+/* prose sections */
+.prose{max-width:1400px;margin:0 auto;padding:16vh 6vw 0}
+.prose > header{display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:4vw;align-items:end;margin-bottom:48px}
+.prose h2{font-weight:500;font-size:clamp(36px,4.4vw,60px);line-height:1;letter-spacing:-.035em;margin:12px 0 0}
+.prose header p{margin:0;max-width:600px;color:var(--mute)}
+
+.lifecycle{position:relative;display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--ink)}
+.lifecycle > div{padding:18px 18px 0 0;position:relative}
+.lifecycle > div::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.lifecycle > div:last-child::before{background:var(--ink)}
+.lifecycle h3{font-weight:500;font-size:19px;margin:8px 0 2px}
+.lifecycle .when{font:400 12px var(--mono);color:var(--mute)}
+.lifecycle ul{list-style:none;padding:0;margin:16px 0 0;font:400 13px/2 var(--mono)}
+.lifecycle li::before{content:"";display:inline-block;width:18px;margin-right:8px;vertical-align:middle;border-top:2px solid currentColor}
+.lifecycle li.i::before{border-top:1.5px dashed currentColor}
+.lifecycle li.g{color:var(--ff)} .lifecycle li.s{color:var(--fb)}
+.costline{display:flex;justify-content:space-between;margin-top:28px;font:400 12px var(--mono);color:var(--mute)}
+.costline span:nth-child(2){flex:1;margin:0 16px;align-self:center;height:0;border-top:1px solid var(--hair);position:relative}
+.costline span:nth-child(2)::after{content:"";position:absolute;right:-1px;top:-5px;border:5px solid transparent;border-left:7px solid var(--hair);border-right:0}
+.callout{margin-top:40px;display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:4vw}
+.callout p{margin:0;max-width:640px}
+
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink)}
+.tiers > div{padding:22px 28px 0 0}
+.tiers > div + div{padding-left:28px;border-left:1px solid var(--hair)}
+.tiers h3{font-weight:500;font-size:22px;letter-spacing:-.01em;margin:10px 0 14px}
+.tiers ul{margin:0;padding:0;list-style:none}
+.tiers li{padding:7px 0;border-bottom:1px solid var(--hair)}
+.tiers .swatch{display:block;width:44px;border-top:2.5px solid var(--ink);margin-top:4px}
+.tiers .swatch.i{border-top:2px dashed var(--ink)}
+.tiers .swatch.n{border-top:1px solid var(--hair)}
+.big-quote{font-weight:500;font-size:clamp(28px,3.2vw,44px);line-height:1.12;letter-spacing:-.025em;max-width:1000px;margin:72px 0 0}
+.big-quote cite{display:block;margin-top:16px;font:400 13px var(--mono);color:var(--mute);font-style:normal;letter-spacing:0}
+
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw}
+.three h3{font-weight:500;font-size:20px;margin:0 0 10px}
+.three p{margin:0;color:var(--ink)}
+.three .label{display:block;margin-bottom:10px}
+
+.map{width:100%;border-collapse:collapse}
+.map th{text-align:left;padding:0 24px 12px 0;font:400 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid var(--ink)}
+.map td{padding:18px 24px 18px 0;border-bottom:1px solid var(--hair);vertical-align:top}
+.map td:first-child{font-weight:500;width:24%}
+.map td:nth-child(2){color:var(--mute);width:30%}
+.map td:last-child{font-size:20px;letter-spacing:-.01em}
+.against{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw;margin-top:12px}
+.against p{margin:0}
+.against b{font-weight:500;display:block;margin-bottom:6px}
+footer{max-width:1400px;margin:18vh auto 0;padding:24px 6vw 60px;border-top:1px solid var(--hair);font:400 12px/1.7 var(--mono);color:var(--mute)}
+
+@media (max-width:900px){
+  .scrolly{grid-template-columns:1fr;padding:0 5vw}
+  .stage{order:-1;height:auto;top:0;z-index:2;background:var(--paper);padding:10px 0;border-bottom:1px solid var(--hair)}
+  #sch{max-height:44vh}
+  .steps{padding-top:4vh}
+  .step{min-height:60vh}
+  .prose > header,.callout{grid-template-columns:1fr}
+  .lifecycle{grid-template-columns:1fr;border-top:0;border-left:2px solid var(--ink);margin-left:6px}
+  .lifecycle > div{padding:0 0 26px 22px}
+  .lifecycle > div::before{top:4px;left:-7px}
+  .tiers,.three,.against{grid-template-columns:1fr}
+  .tiers > div + div{padding-left:0;border-left:0}
+  .map td:last-child{font-size:17px}
+  .map thead{display:none}.map tr,.map td{display:block;width:auto!important;padding:4px 0}.map tr{padding:16px 0;border-bottom:1px solid var(--hair)}.map td{border:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.pulse{display:none}}
+
+/* Desktop: Iury reviewed this at 125% browser zoom and liked it best. */
+@media (min-width:1100px){
+  html{zoom:1.25}
+  .stage{height:80vh}
+  .step{min-height:62vh}
+  .hero h1{font-size:clamp(52px,6.7vw,128px)}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="label">Reading notes for “Harness Engineering”, devCon, 8 October</div>
+  <h1><span>A harness is</span><span>a control system.</span></h1>
+  <p class="standfirst">Birgitta Böckeler's article reduces harness engineering to two questions. Does a control act <span class="ff">before</span> the agent does, or <span class="fb">after</span>? And is it run by code, or judged by a model? Scroll to build her model one piece at a time. Each step is one click of the slide it could become.</p>
+  <div class="meta">
+    <div><b>Source</b><a href="https://martinfowler.com/articles/harness-engineering.html">Harness engineering for coding agent users</a>, Birgitta Böckeler, martinfowler.com</div>
+    <div><b>How to read the lines</b>
+      <span class="legend" style="margin-top:8px;display:flex">
+        <span><svg width="34" height="6"><line x1="0" y1="3" x2="34" y2="3" stroke="#14161b" stroke-width="2.25"/></svg>code</span>
+        <span><svg width="34" height="6"><line x1="0" y1="3" x2="34" y2="3" stroke="#14161b" stroke-width="1.5" stroke-dasharray="5 4"/></svg>a model</span>
+      </span>
+    </div>
+    <div><b>Colour</b><span class="ff">Blue</span> acts before the agent. <span class="fb">Orange</span> checks after it.</div>
+  </div>
+</header>
+
+<section class="scrolly" aria-label="The model, built step by step">
+  <div class="steps">
+    <article class="step" data-step="1">
+      <div class="label">Click 1 of 8</div>
+      <h2>The model</h2>
+      <p>At the centre is a model. It predicts the next token. It has no memory or tools, and it knows nothing about your codebase.</p>
+    </article>
+    <article class="step" data-step="2">
+      <div class="label">Click 2 of 8</div>
+      <h2>The builder harness</h2>
+      <p>The coding CLI wraps the model in a system prompt, a loop, tools and code search. Anthropic, OpenAI and the Pi authors build this part. You use it, but you don't own it.</p>
+    </article>
+    <article class="step" data-step="3">
+      <div class="label">Click 3 of 8</div>
+      <h2>Your harness</h2>
+      <p>Then there's everything you add for your own codebase. Böckeler calls it the outer harness, and its job is to get the first attempt right more often and to fix mistakes before a person has to look.</p>
+      <blockquote>Agent = Model + Harness<cite>LangChain, quoted by Böckeler</cite></blockquote>
+      <p style="margin-top:16px">“Harness” has no single definition. In this talk, it means this outer ring.</p>
+    </article>
+    <article class="step" data-step="4">
+      <div class="label">Click 4 of 8</div>
+      <h2 class="ff">Guides act before</h2>
+      <p>A guide shapes what the agent does before it acts. AGENTS.md, skills, type information and codemods all make a good first attempt more likely.</p>
+    </article>
+    <article class="step" data-step="5">
+      <div class="label">Click 5 of 8</div>
+      <h2 class="fb">Sensors check after</h2>
+      <p>A sensor checks what the agent did and feeds the result back, so it can correct itself. Sensors work best when they're written for the model: a lint message that says how to fix the problem is</p>
+      <blockquote>“a positive kind of prompt injection.”<cite>Böckeler</cite></blockquote>
+      <p style="margin-top:16px">You need both. With sensors alone, the same mistake gets caught every time and made every time. With guides alone, you never find out whether your rules worked.</p>
+    </article>
+    <article class="step" data-step="6">
+      <div class="label">Click 6 of 8</div>
+      <h2>Code or a model</h2>
+      <p>Every guide and sensor is run by one of two things.</p>
+      <p><b style="font-weight:500">Code</b> (her word: computational) is fast and cheap, and gives the same answer every time. Tests, linters and type checkers are code. They're drawn as solid lines.</p>
+      <p><b style="font-weight:500">A model</b> (inferential) is slower and costs more. It can be wrong, but it understands meaning. AGENTS.md and review agents are models at work. They're drawn as dashed lines.</p>
+    </article>
+    <article class="step" data-step="7">
+      <div class="label">Click 7 of 8</div>
+      <h2>Your show of hands, on the map</h2>
+      <p>Ask the room who has written an <b style="font-weight:500">AGENTS.md</b>, a <b style="font-weight:500">skill</b>, a <b style="font-weight:500">hook</b> and an <b style="font-weight:500">extension</b>.</p>
+      <p>Steps 1 and 2 are dashed: you're asking nicely. Step 3, a hook, runs a real check. Step 4, an extension, reaches inside the builder harness and changes the loop itself.</p>
+      <p>Each step up the ladder swaps asking for checking.</p>
+    </article>
+    <article class="step" data-step="8">
+      <div class="label">Click 8 of 8</div>
+      <h2>You steer the harness</h2>
+      <p>Your job is the outermost loop. When the same mistake happens twice, don't fix the code. Add the guide or sensor that would have prevented it.</p>
+      <blockquote>“Whenever an issue happens multiple times, the feedforward and feedback controls should be improved.”<cite>Böckeler</cite></blockquote>
+      <p style="margin-top:16px">Each time round the loop makes the mistake less likely. That's what trust means here.</p>
+    </article>
+  </div>
+
+  <div class="stage">
+    <figure>
+      <svg id="sch" viewBox="0 0 760 580" role="img" aria-label="Schematic of a coding-agent harness, built step by step">
+        <defs>
+          <marker id="a-ink" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1L9,5L0,9z" fill="#14161b"/></marker>
+          <marker id="a-ff" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,1L9,5L0,9z" fill="#2448c8"/></marker>
+          <marker id="a-fb" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,1L9,5L0,9z" fill="#d9480f"/></marker>
+        </defs>
+
+        <!-- 3: user harness -->
+        <g data-from="3">
+          <rect x="160" y="112" width="456" height="418" rx="30" fill="none" stroke="#14161b" stroke-width="1"/>
+          <text x="184" y="140">your harness</text>
+        </g>
+
+        <!-- 1: task in, code out -->
+        <g data-from="1">
+          <text x="20" y="296" class="t-mute">task</text>
+          <line x1="58" y1="300" x2="328" y2="300" stroke="#14161b" stroke-width="1.25" marker-end="url(#a-ink)"/>
+          <line x1="492" y1="300" x2="636" y2="300" stroke="#14161b" stroke-width="1.25" marker-end="url(#a-ink)"/>
+          <rect x="640" y="282" width="84" height="36" rx="4" fill="var(--paper)" stroke="#14161b" stroke-width="1.25"/>
+          <text x="682" y="305" text-anchor="middle">code</text>
+        </g>
+
+        <!-- 2: builder harness -->
+        <g data-from="2">
+          <rect x="330" y="214" width="160" height="172" rx="20" fill="var(--paper-2)" stroke="#14161b" stroke-width="1.5"/>
+          <text x="410" y="238" text-anchor="middle" class="t-mute">builder harness</text>
+          <text x="410" y="372" text-anchor="middle" class="t-mute" style="font-size:11px">claude · codex · pi</text>
+        </g>
+
+        <!-- 1: model -->
+        <g data-from="1">
+          <circle cx="410" cy="300" r="42" fill="#14161b"/>
+          <text x="410" y="305" text-anchor="middle" style="fill:var(--paper)">model</text>
+        </g>
+
+        <!-- 4: guides -->
+        <g data-from="4">
+          <text x="184" y="186" class="t-ff">guides</text>
+          <path class="wire g k-i" d="M282,214 C306,214 306,256 326,256" marker-end="url(#a-ff)"/>
+          <path class="wire g k-i" d="M282,258 C304,258 306,276 326,276" marker-end="url(#a-ff)"/>
+          <path class="wire g k-c" d="M282,346 C304,346 306,324 326,324" marker-end="url(#a-ff)"/>
+          <path class="wire g k-c" d="M282,390 C306,390 306,344 326,344" marker-end="url(#a-ff)"/>
+          <g class="pill g k-i"><rect x="184" y="199" width="98" height="30" rx="15"/><text x="233" y="219" text-anchor="middle">AGENTS.md</text></g>
+          <g class="pill g k-i"><rect x="184" y="243" width="98" height="30" rx="15"/><text x="233" y="263" text-anchor="middle">skills</text></g>
+          <g class="pill g k-c"><rect x="184" y="331" width="98" height="30" rx="15"/><text x="233" y="351" text-anchor="middle">types · LSP</text></g>
+          <g class="pill g k-c"><rect x="184" y="375" width="98" height="30" rx="15"/><text x="233" y="395" text-anchor="middle">codemods</text></g>
+        </g>
+
+        <!-- 5: sensors + feedback path -->
+        <g data-from="5">
+          <path id="fbpath" class="wire s k-c" d="M682,318 L682,490 L410,490 L410,390" marker-end="url(#a-fb)"/>
+          <text x="694" y="440" class="t-fb">sensors</text>
+          <g class="pill s k-c"><rect x="436" y="475" width="64" height="30" rx="15"/><text x="468" y="495" text-anchor="middle">tests</text></g>
+          <g class="pill s k-c"><rect x="512" y="475" width="56" height="30" rx="15"/><text x="540" y="495" text-anchor="middle">lint</text></g>
+          <g class="pill s k-i"><rect x="580" y="475" width="88" height="30" rx="15"/><text x="624" y="495" text-anchor="middle">AI review</text></g>
+          <circle class="pulse" r="4.5" fill="#d9480f"><animateMotion dur="2.6s" repeatCount="indefinite" path="M682,318 L682,490 L410,490 L410,390"/></circle>
+        </g>
+
+        <!-- 6: legend inside the drawing -->
+        <g data-from="6">
+          <line x1="470" y1="150" x2="510" y2="150" stroke="#14161b" stroke-width="2.25"/><text x="520" y="155">code</text>
+          <line x1="470" y1="176" x2="510" y2="176" stroke="#14161b" stroke-width="1.5" stroke-dasharray="5 4"/><text x="520" y="181">a model</text>
+        </g>
+
+        <!-- 7: ladder -->
+        <g data-from="7">
+          <g class="mark"><circle cx="176" cy="214" r="11"/><text x="176" y="218" text-anchor="middle">1</text></g>
+          <g class="mark"><circle cx="176" cy="258" r="11"/><text x="176" y="262" text-anchor="middle">2</text></g>
+          <g class="mark"><circle cx="468" cy="550" r="11"/><text x="468" y="554" text-anchor="middle">3</text></g>
+          <text x="484" y="555" class="t-mute" style="font-size:11px">a hook runs these on every edit</text>
+          <g class="mark"><circle cx="490" cy="214" r="11"/><text x="490" y="218" text-anchor="middle">4</text></g>
+          <text x="506" y="219" class="t-mute" style="font-size:11px">extension</text>
+        </g>
+
+        <!-- 8: steering -->
+        <g data-from="8">
+          <circle cx="388" cy="46" r="18" fill="none" stroke="#14161b" stroke-width="1.5"/>
+          <text x="388" y="51" text-anchor="middle">you</text>
+          <path d="M370,46 C250,46 168,90 168,180" fill="none" stroke="#14161b" stroke-width="1.5" marker-end="url(#a-ink)"/>
+          <path d="M406,46 C740,46 748,330 700,404" fill="none" stroke="#14161b" stroke-width="1.5" marker-end="url(#a-ink)"/>
+          <text x="388" y="16" text-anchor="middle" class="t-mute" style="font-size:12px">fix the harness, not the code</text>
+        </g>
+      </svg>
+      <figcaption><span class="label" id="stepname">Scroll to build</span><span class="label" id="stepcount">0 / 8</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="prose" aria-labelledby="h-timing">
+  <header>
+    <div><div class="label">Where the checks run</div><h2 id="h-timing">Keep quality left</h2></div>
+    <p>The sooner a check runs, the cheaper the fix. Cheap code checks run inside the agent's own loop on every change. Model checks cost more, so they run later. The last stop never finishes.</p>
+  </header>
+  <div class="lifecycle">
+    <div><div class="when">before it acts</div><h3>Guides</h3><ul><li class="g i">AGENTS.md</li><li class="g i">architecture.md</li><li class="g i">/how-to-test</li><li class="g">LSP</li></ul></div>
+    <div><div class="when">before commit</div><h3>The agent's loop</h3><ul><li class="s">eslint</li><li class="s">semgrep</li><li class="s">coverage</li><li class="s i">/code-review</li></ul></div>
+    <div><div class="when">before merge</div><h3>You</h3><ul><li class="s i">human review</li></ul></div>
+    <div><div class="when">after merge</div><h3>Pipeline</h3><ul><li class="s">all of the above</li><li class="s">mutation tests</li><li class="s i">/architecture-review</li></ul></div>
+    <div><div class="when">always</div><h3>Drift and health</h3><ul><li class="s">dead-code scan</li><li class="s">dependabot</li><li class="s">SLO alerts</li><li class="s i">log-anomaly judge</li></ul></div>
+  </div>
+  <div class="costline"><span>cheap, every change</span><span></span><span>expensive, sampled</span></div>
+  <div class="callout"><div class="label">In the talk</div><p>The last column is the <b style="font-weight:500">software factory</b> from your voice note: cron jobs, schedules and review bots that keep running after the change ships. OpenAI's “garbage collection” agents sit here too. This strip connects <i>Closing the loop</i> to the new <i>Software factory</i> slide.</p></div>
+</section>
+
+<section class="prose" aria-labelledby="h-catch">
+  <header>
+    <div><div class="label">What a harness can and can't catch</div><h2 id="h-catch">Behaviour is still the hard part</h2></div>
+    <p>Böckeler checked her catalogue of common agent failures against these controls. Code catches structural problems. A model catches some problems of meaning. The most damaging failures still get past both.</p>
+  </header>
+  <div class="tiers">
+    <div><span class="swatch"></span><h3>Code catches these, reliably</h3><ul><li>Duplicate code</li><li>Cyclomatic complexity</li><li>Missing coverage</li><li>Architectural drift</li><li>Style violations</li></ul></div>
+    <div><span class="swatch i"></span><h3>A model catches some, at a cost</h3><ul><li>Code that does the same thing a different way</li><li>Redundant tests</li><li>Brute-force fixes</li><li>Over-engineering</li></ul></div>
+    <div><span class="swatch n"></span><h3>Nothing catches these reliably</h3><ul><li>Misdiagnosed problems</li><li>Features nobody asked for</li><li>Misunderstood instructions</li></ul></div>
+  </div>
+  <p class="big-quote">“Correctness is outside any sensor's remit if the human didn't clearly specify what they wanted in the first place.”<cite>Böckeler, on the behaviour harness, which she calls “the elephant in the room”</cite></p>
+  <div class="callout"><div class="label">In the talk</div><p>This sets up the <b style="font-weight:500">Verify end to end</b> slide. She names behaviour as the open problem, and you argue that end-to-end tests are now cheap enough to tackle it. That's where your one line of evolutionary code belongs: code has to survive the real world, and behaviour sensors are that test.</p></div>
+</section>
+
+<section class="prose" aria-labelledby="h-yours">
+  <header>
+    <div><div class="label">Why every team builds its own</div><h2 id="h-yours">The harness is most needed where it's hardest to build</h2></div>
+    <p>Three ideas from the end of the article support your domain-specific harness slide.</p>
+  </header>
+  <div class="three">
+    <div><span class="label">Harnessability</span><h3>Some code is easier to harness</h3><p>Strong types give you a free sensor. Clear module boundaries let you write structural rules. Legacy code has neither, which is why you start from one module.</p></div>
+    <div><span class="label">The implicit harness</span><h3>You were the harness</h3><p>Developers bring conventions, “aesthetic disgust at a 300-line function” and a name on the commit. The agent has none of that. A harness writes that knowledge down, but only some of it fits.</p></div>
+    <div><span class="label">Harness templates</span><h3>A standard one may come</h3><p>Service templates may grow into harness templates, one per stack. They'll drift from upstream just like service templates do. Don't wait for one.</p></div>
+  </div>
+  <p class="big-quote">“A good harness should not necessarily aim to fully eliminate human input, but to direct it to where our input is most important.”<cite>Böckeler</cite></p>
+</section>
+
+<section class="prose" aria-labelledby="h-talk">
+  <header>
+    <div><div class="label">For the deck</div><h2 id="h-talk">Where this goes in the talk</h2></div>
+    <p>The schematic above could replace the text-only “Guides and sensors” slide, one click per step.</p>
+  </header>
+  <table class="map">
+    <thead><tr><th>Slide</th><th>Idea from the article</th><th>A line you could say</th></tr></thead>
+    <tbody>
+      <tr><td>Agent = Model + Harness</td><td>Builder harness and user harness</td><td>“When I say harness, I mean the part you build.”</td></tr>
+      <tr><td>Levels of harness engineering</td><td>Where each rung sits on the map</td><td>“AGENTS.md asks nicely. A hook checks.”</td></tr>
+      <tr><td>Guides and sensors</td><td>Before and after, code and model</td><td>“Guides improve the first try. Sensors make the second one possible.”</td></tr>
+      <tr><td>ToolFeedback</td><td>Sensor messages written for the model</td><td>“A good error message is a prompt injection you meant to write.”</td></tr>
+      <tr><td>Verify end to end</td><td>The behaviour harness</td><td>“Maintainability is mostly handled. Behaviour isn't.”</td></tr>
+      <tr><td>Software factory</td><td>Drift and health checks that never stop</td><td>“Some sensors never stop running.”</td></tr>
+      <tr><td>Domain-specific harness</td><td>Harnessability and the implicit harness</td><td>“It's needed most where it's hardest to build.”</td></tr>
+      <tr><td>“I don't trust the agent”</td><td>The steering loop</td><td>“Every repeated mistake is a missing guide or sensor.”</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label" style="margin-top:72px">Push-back</div>
+  <div class="against">
+    <p><b>Take two ideas, not seven.</b>Before and after, and code or model. Everything else should support slides you already have.</p>
+    <p><b>Say it in plain words.</b>On stage, say “checked by code” and “judged by a model”. Put “computational” and “inferential” in small type for people who want to look them up.</p>
+    <p><b>Credit the model.</b>The two axes are Böckeler's. Put “after Böckeler, martinfowler.com” in the corner of the diagram.</p>
+  </div>
+</section>
+
+<!-- Reference example for the article-explainer skill. Font placeholders __SAT400__, __SAT500__ and __MONO__ are filled by scripts/embed-fonts.py. -->
+<footer>Source: Birgitta Böckeler, “Harness engineering for coding agent users”, martinfowler.com (page metadata: 1 October 2026). Quotes are hers. The examples follow her figures. The talk mapping and the ladder reading are ours. Set in Satoshi and Commit Mono, the deck's own typefaces.</footer>
+
+<script>
+const sch=document.getElementById('sch');
+const parts=[...sch.querySelectorAll('[data-from]')];
+const steps=[...document.querySelectorAll('.step')];
+const names=["","The model","The builder harness","Your harness","Guides act before","Sensors check after","Code or a model","Your show of hands","You steer the harness"];
+let current=-1;
+// The scene is a pure function of the step, as in the deck.
+function render(n){
+  if(n===current)return; current=n;
+  parts.forEach(p=>{const f=+p.dataset.from;p.classList.toggle('in',f<=n);p.classList.toggle('fresh',f===n)});
+  sch.classList.toggle('typed',n>=6);
+  steps.forEach(s=>s.classList.toggle('on',+s.dataset.step===n));
+  document.getElementById('stepcount').textContent=n+' / 8';
+  document.getElementById('stepname').textContent=n?names[n]:'Scroll to build';
+}
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)render(+e.target.dataset.step)})},{rootMargin:'-45% 0px -45% 0px'});
+steps.forEach(s=>io.observe(s));
+addEventListener('scroll',()=>{if(scrollY<steps[0].offsetTop-innerHeight*.6)render(0)},{passive:true});
+render(0);
+</script>
+</body>
+</html>

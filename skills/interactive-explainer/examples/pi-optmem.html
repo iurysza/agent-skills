@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-optmem: memory each session opts into</title>
+<style>
+:root{
+  --paper:#e8edf1; --panel:#f6f8fa; --ink:#18212d; --muted:#5d6977; --line:#c3ccd6;
+  --off:#7d8896; --read:#2b67d1; --on:#d99a00; --block:#c2412d; --ok:#25835a;
+  --mode:var(--on);
+  --display:"Iowan Old Style","Charter","Palatino Linotype",Georgia,serif;
+  --body:"Avenir Next","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,monospace;
+}
+body[data-mode=off]{--mode:var(--off)} body[data-mode=read]{--mode:var(--read)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 var(--body);
+  background-image:radial-gradient(var(--line) .8px,transparent .8px);background-size:22px 22px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--read);outline-offset:3px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:22px;align-items:center;height:52px;font:13px var(--mono)}
+nav b{margin-right:auto} nav a{text-decoration:none;color:var(--muted)} nav a:hover{color:var(--ink)}
+.status{padding:2px 9px;border-radius:5px;background:var(--ink);color:#fff;transition:background .3s}
+.status i{font-style:normal;color:var(--mode);transition:color .3s}
+section{padding:92px 0;border-bottom:1px solid var(--line)}
+.eyebrow{font:12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1,h2{font-family:var(--display);font-weight:600;letter-spacing:-.02em;line-height:1.03;margin:0}
+h1{font-size:clamp(46px,7vw,92px);max-width:11ch}
+h1 em{font-style:italic;color:var(--mode);transition:color .4s}
+h2{font-size:clamp(34px,4.4vw,56px);max-width:18ch;margin-bottom:20px}
+h3{font-size:18px;margin:0 0 6px}
+.lede{font-size:20px;color:var(--muted);max-width:56ch}
+p{max-width:64ch}
+code,kbd{font:14px var(--mono);background:#dfe5eb;border-radius:4px;padding:1px 5px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center;padding-top:70px}
+.switch{display:inline-grid;grid-template-columns:repeat(3,1fr);position:relative;background:var(--ink);border-radius:12px;padding:5px;margin:30px 0 14px;width:330px}
+.switch button{position:relative;z-index:1;border:0;background:none;color:#aeb8c4;font:600 14px var(--mono);padding:12px 0;cursor:pointer;border-radius:8px;transition:color .2s}
+.switch button[aria-pressed=true]{color:var(--ink)}
+.switch .thumb{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/3);border-radius:8px;background:var(--mode);transition:transform .45s cubic-bezier(.3,1.4,.5,1),background .3s}
+body[data-mode=read] .thumb{transform:translateX(100%)} body[data-mode=on] .thumb{transform:translateX(200%)}
+.mode-note{font:14px var(--mono);color:var(--muted);min-height:3em;max-width:44ch}
+
+/* session machine */
+.machine{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 30px 60px -38px #18212d88}
+.machine header{display:flex;justify-content:space-between;font:12px var(--mono);color:var(--muted);margin-bottom:14px}
+.layer{border:1.5px dashed var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;transition:all .45s;position:relative}
+.layer .tag{font:11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.layer .body{font:13px/1.5 var(--mono);margin-top:4px}
+.layer.lit{border-style:solid;border-color:var(--mode);background:color-mix(in srgb,var(--mode) 9%,white)}
+.layer.dim .body{opacity:.35;text-decoration:line-through}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font:12px var(--mono);padding:3px 8px;border-radius:20px;border:1px solid var(--line);color:var(--muted);transition:all .35s}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.on::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mode);margin-right:6px;vertical-align:1px}
+.guardline{display:flex;justify-content:space-between;gap:10px;font:12.5px var(--mono);padding:3px 0;border-top:1px dotted var(--line)}
+.guardline:first-of-type{border-top:0}
+.v-ok{color:var(--ok)} .v-no{color:var(--block)}
+
+/* comparison */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:40px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px}
+.card.bad{opacity:.85}
+.sessions{display:flex;gap:8px;margin:16px 0}
+.sess{flex:1;height:84px;border-radius:9px;border:1px solid var(--line);font:11px var(--mono);display:flex;align-items:flex-end;padding:7px;position:relative;overflow:hidden;background:white}
+.sess::after{content:"";position:absolute;left:0;right:0;top:0;height:var(--h,0%);background:var(--c,var(--on));opacity:.85}
+.sess span{position:relative;z-index:1}
+
+/* pipeline */
+.pipe{position:relative;margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+.stage .n{font:12px var(--mono);color:var(--muted)}
+.stage.hot{border-color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--mode) 45%,transparent)}
+.stage:not(:last-child)::after{content:"→";position:absolute;right:-15px;top:40%;font:20px var(--mono);color:var(--muted)}
+.packet{margin-top:28px;background:var(--ink);color:#d7dee6;border-radius:14px;padding:20px 22px;font:13px/1.7 var(--mono);overflow:auto}
+.packet .sys{color:#9fb0c4} .packet .hl{color:var(--mode)} .packet .gone{color:#64707e;text-decoration:line-through}
+.packet .row{display:grid;grid-template-columns:110px 1fr;gap:12px}.packet .lbl{color:#64707e}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font:13px var(--mono);color:var(--muted)}
+
+/* tree */
+.treebox{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;margin-top:40px;align-items:start}
+.wake{background:var(--ink);color:#e6ebf0;border-radius:16px;padding:22px;font:13.5px/1.55 var(--mono);min-height:380px}
+.wake .hd{color:#7d8896;margin-bottom:12px}
+.node{display:flex;gap:12px;padding:6px 8px;border-radius:7px;cursor:pointer;border:0;background:none;color:inherit;font:inherit;text-align:left;width:100%;animation:pop .35s ease}
+.node:hover{background:#ffffff12}
+.node .id{color:var(--on);min-width:62px}
+.node.leaf{cursor:default} .node.leaf .id{color:#9fb0c4}
+.node.leaf:hover{background:none}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}}
+.svgtree{width:100%;height:auto;display:block}
+.svgtree rect{fill:var(--panel);stroke:var(--line)} .svgtree .open rect{fill:color-mix(in srgb,var(--on) 25%,white);stroke:var(--on)}
+.svgtree text{font:11px var(--mono);fill:var(--ink)} .svgtree path{stroke:var(--line);fill:none}
+.btnrow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{font:600 13px var(--mono);border:1px solid var(--ink);background:none;padding:8px 13px;border-radius:8px;cursor:pointer;color:var(--ink)}
+.btn:hover{background:var(--ink);color:#fff}
+
+/* timeline */
+.timeline{margin-top:40px;position:relative}
+.tl-track{display:flex;gap:6px;margin-bottom:18px}
+.tl-track button{flex:1;height:10px;border:0;border-radius:6px;background:var(--line);cursor:pointer;padding:0}
+.tl-track button.done{background:var(--ink)} .tl-track button.cur{background:var(--mode)}
+.scene{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px;min-height:300px}
+.term{background:#0f151d;color:#cbd5df;border-radius:12px;padding:18px;font:13px/1.65 var(--mono);white-space:pre-wrap;position:relative}
+.term .p{color:#7d8896} .term .y{color:var(--on)} .term .b{color:#78a6ff} .term .r{color:#ff8a76} .term .g{color:#6fcf97}
+.term .foot{position:absolute;right:12px;bottom:10px;padding:1px 8px;border-radius:4px;background:#222c38;font-size:12px}
+.scene h3{font-family:var(--display);font-size:30px;font-weight:600;margin-bottom:10px}
+
+/* guard lab */
+.lab{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:36px}
+.lab input{width:100%;font:15px var(--mono);padding:14px;border-radius:10px;border:1.5px solid var(--ink);background:white;color:var(--ink)}
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.verdict{border-radius:12px;padding:14px;border:1px solid var(--line);background:var(--panel);font:13px var(--mono)}
+.verdict b{display:block;font-size:20px;font-family:var(--display);margin-top:4px}
+.verdict.allow b{color:var(--ok)} .verdict.block b{color:var(--block)}
+.samples{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.samples button{font:12px var(--mono);border:1px dashed var(--muted);background:none;border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--ink)}
+
+/* reference */
+.ref{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+.ref table{width:100%;border-collapse:collapse;font-size:14px}
+.ref td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}
+.ref td:first-child{font:13px var(--mono);white-space:nowrap;padding-right:12px}
+.ladder{display:flex;align-items:stretch;gap:0;margin-top:30px;flex-wrap:wrap}
+.rung{flex:1;min-width:160px;padding:16px;border:1px solid var(--line);background:var(--panel);margin-left:-1px}
+.rung:first-child{border-radius:12px 0 0 12px}.rung:last-child{border-radius:0 12px 12px 0}
+.rung .k{font:12px var(--mono);color:var(--muted)}
+footer{padding:50px 0 70px;color:var(--muted);font:13px var(--mono)}
+
+@media (max-width:860px){
+  .hero,.split,.treebox,.scene,.lab,.ref{grid-template-columns:1fr}
+  .pipe{grid-template-columns:1fr 1fr} .stage::after{display:none}
+  nav a{display:none} .switch{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body data-mode="on">
+
+<nav><div class="wrap">
+  <b>pi-optmem</b>
+  <a href="#why">Why</a><a href="#request">A request</a><a href="#tree">Memory tree</a><a href="#day">A day</a><a href="#guard">Bash guard</a><a href="#controls">Controls</a>
+  <span class="status">mem:<i id="statusMode">on</i></span>
+</div></nav>
+
+<header class="wrap hero">
+  <div>
+    <p class="eyebrow">A Pi extension for OptMem</p>
+    <h1>Memory each session <em>opts into</em>.</h1>
+    <p class="lede">Install OptMem once. Then decide, per session, whether the agent remembers, only reads, or forgets you exist.</p>
+    <div class="switch" role="group" aria-label="Memory mode">
+      <span class="thumb"></span>
+      <button data-set="off" aria-pressed="false">off</button>
+      <button data-set="read" aria-pressed="false">read</button>
+      <button data-set="on" aria-pressed="true">on</button>
+    </div>
+    <p class="mode-note" id="modeNote"></p>
+  </div>
+
+  <div class="machine" aria-live="polite">
+    <header><span>one Pi session</span><span id="machineFoot">footer: mem:on</span></header>
+    <div class="layer" id="lSys"><div class="tag">System prompt</div><div class="body" id="lSysBody"></div></div>
+    <div class="layer" id="lWake"><div class="tag">Wake view &lt;optmem-wake&gt;</div><div class="body">#0-15 Iury: Android GDE in Berlin, runs marathons…<br>#16-23 pi-extensions: monorepo, one root lockfile…</div></div>
+    <div class="layer" id="lTools"><div class="tag">Tools</div>
+      <div class="chips"><span class="chip" data-t="note">memo_note</span><span class="chip" data-t="zoom">memo_zoom</span><span class="chip" data-t="recall">memo_recall</span><span class="chip" data-t="nap">memo_nap</span></div>
+    </div>
+    <div class="layer lit" id="lGuard"><div class="tag">Bash guard</div>
+      <div class="guardline"><span>memo wake</span><span id="g1"></span></div>
+      <div class="guardline"><span>memo note "likes tea"</span><span id="g2"></span></div>
+      <div class="guardline"><span>if true; then memo note x; fi</span><span id="g3"></span></div>
+    </div>
+  </div>
+</header>
+
+<section id="why"><div class="wrap">
+  <p class="eyebrow">The problem it solves</p>
+  <h2>Stock OptMem is a light switch for the whole house.</h2>
+  <p class="lede">OptMem's instructions normally live in <code>AGENTS.md</code>. Every session then reads memory, writes memory and pays for the wake view, including quick fixes, client work and subagents.</p>
+  <div class="split">
+    <div class="card bad">
+      <h3>Before: a block in AGENTS.md</h3>
+      <div class="sessions">
+        <div class="sess" style="--h:100%"><span>vault</span></div>
+        <div class="sess" style="--h:100%"><span>work repo</span></div>
+        <div class="sess" style="--h:100%"><span>quick fix</span></div>
+        <div class="sess" style="--h:100%"><span>subagent</span></div>
+      </div>
+      <p>Everything is on. Subagents can write notes. A throwaway session fills memory with noise.</p>
+    </div>
+    <div class="card">
+      <h3>After: pi-optmem</h3>
+      <div class="sessions">
+        <div class="sess" style="--h:100%;--c:var(--on)"><span>vault · on</span></div>
+        <div class="sess" style="--h:55%;--c:var(--read)"><span>work · read</span></div>
+        <div class="sess" style="--h:0%"><span>quick fix · off</span></div>
+        <div class="sess" style="--h:0%"><span>subagent · off</span></div>
+      </div>
+      <p>Each session gets the prompt, wake view and tools for its mode. Subagents are capped, and never write.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="request"><div class="wrap">
+  <p class="eyebrow">What reaches the model</p>
+  <h2>The wake view rides along with each request, and is never saved.</h2>
+  <p class="lede">The extension holds the wake view in memory and adds it just before the model call. Compaction and branch summaries never see it, so turning memory off really removes it.</p>
+  <div class="pipe" id="pipe">
+    <div class="stage"><div class="n">session start</div><h3>Resolve the mode</h3><p>Flag, then saved mode, then folder rule, then default.</p></div>
+    <div class="stage"><div class="n">before the turn</div><h3>Wake</h3><p>Run <code>memo wake</code>, fetching every page. Reuse it until something changes.</p></div>
+    <div class="stage"><div class="n">each request</div><h3>Assemble</h3><p>Add the mode's prompt section. Put the fresh wake view first. Strip old copies.</p></div>
+    <div class="stage"><div class="n">tool calls</div><h3>Guard</h3><p>Mode decides which memo tools exist and which bash commands pass.</p></div>
+  </div>
+  <div class="packet" id="packet"></div>
+  <div class="legend"><span>Switch modes at the top to see the request change.</span></div>
+</div></section>
+
+<section id="tree"><div class="wrap">
+  <p class="eyebrow">How memory is shaped</p>
+  <h2>A binary tree of one-line memories.</h2>
+  <p class="lede">The wake view shows summaries of whole ranges. The agent zooms into a range when it needs detail, and naps a range into one line when memo asks for compression.</p>
+  <div class="treebox">
+    <div class="wake" id="wake" aria-live="polite"></div>
+    <div>
+      <svg class="svgtree" id="svgtree" viewBox="0 0 360 250" role="img" aria-label="Memory tree"></svg>
+      <div class="btnrow">
+        <button class="btn" id="resetTree">Reset wake view</button>
+        <button class="btn" id="napBtn">Simulate a nap</button>
+      </div>
+      <p style="font-size:15px;color:var(--muted)">Click a <code>#a-b</code> line to call <code>memo_zoom</code>. Leaves are raw memories, at most 280 bytes each.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="day"><div class="wrap">
+  <p class="eyebrow">How you use it</p>
+  <h2>A day with pi-optmem.</h2>
+  <div class="timeline">
+    <div class="tl-track" id="tlTrack"></div>
+    <div class="scene">
+      <div><p class="eyebrow" id="sceneStep"></p><h3 id="sceneTitle"></h3><p id="sceneText"></p>
+        <div class="btnrow"><button class="btn" id="prev">← Previous</button><button class="btn" id="next">Next →</button></div></div>
+      <div class="term" id="sceneTerm"></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="guard"><div class="wrap">
+  <p class="eyebrow">Try the bash guard</p>
+  <h2>It blocks first and asks no questions.</h2>
+  <p class="lede">The memo tools check the mode themselves. Bash is the side door, so the guard fails closed: anything unusual that mentions memo is blocked.</p>
+  <div class="lab">
+    <div>
+      <label for="cmd" class="eyebrow">Command the agent wants to run</label>
+      <input id="cmd" value="if true; then python3 memo.py note &quot;x&quot;; fi" spellcheck="false" autocomplete="off">
+      <div class="samples" id="samples"></div>
+    </div>
+    <div>
+      <div class="verdicts" id="verdicts"></div>
+      <p id="guardWhy" style="font-size:15px;color:var(--muted);margin-top:16px"></p>
+      <p style="font-size:13px;color:var(--muted)">This is a simplified preview of <code>guardBash</code> in <code>src/core.ts</code>, not the real parser.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="controls"><div class="wrap">
+  <p class="eyebrow">Reference</p>
+  <h2>Where the starting mode comes from.</h2>
+  <div class="ladder">
+    <div class="rung"><div class="k">first wins</div><b>CLI flag</b><br><code>--memory</code> · <code>--memory-read</code> · <code>--no-memory</code><br><small>First session of the process only</small></div>
+    <div class="rung"><div class="k">then</div><b>Saved mode</b><br>The last <code>/memory</code> switch on this branch</div>
+    <div class="rung"><div class="k">then</div><b>Folder rule</b><br>Longest matching <code>cwd</code> prefix</div>
+    <div class="rung"><div class="k">finally</div><b>defaultMode</b><br>Built in: off. Your profile: on.</div>
+  </div>
+  <p style="margin-top:18px">Several flags at once? The most restrictive wins. Subagents are capped at <code>subagentMode</code>, which is <code>off</code> by default.</p>
+
+  <div class="ref">
+    <div class="card"><h3>Switch</h3><table>
+      <tr><td>/memory</td><td>Mode, where it came from, paths</td></tr>
+      <tr><td>/memory on</td><td>Read and write. Reloads the wake view</td></tr>
+      <tr><td>/memory read</td><td>Read only. No note or nap</td></tr>
+      <tr><td>/memory off</td><td>Tools removed and bash blocked at once</td></tr></table></div>
+    <div class="card"><h3>Browse</h3><table>
+      <tr><td>/memory view</td><td>The current wake view</td></tr>
+      <tr><td>/memory search</td><td>Regex across all memories</td></tr>
+      <tr><td>/memory zoom</td><td>Open a range</td></tr>
+      <tr><td>/memory log</td><td>Newest raw log lines</td></tr></table></div>
+    <div class="card"><h3>Set defaults</h3><table>
+      <tr><td>/memory default</td><td>Default mode for new sessions</td></tr>
+      <tr><td>/memory rule</td><td>Mode for this folder</td></tr>
+      <tr><td>/memory model</td><td>Model for generating and naps</td></tr>
+      <tr><td>Leader → b</td><td>The same, as a menu</td></tr></table></div>
+  </div>
+</div></section>
+
+<footer class="wrap">
+  pi-optmem · packages/pi-optmem · Memory is plain text and permanent. Store pointers, not payloads. Never store secrets.
+</footer>
+
+<script>
+const MODES = {
+  off:{note:"Nothing loads. Memo tools are gone, and any bash command that mentions memo is blocked.",
+       sys:"(no memory section)", tools:[], guard:["block","block","block"]},
+  read:{note:"The agent sees the wake view and can zoom or search. It cannot note or nap.",
+       sys:"## Memory (OptMem, read-only)\nUse the wake view as background. Do not record.", tools:["zoom","recall"], guard:["allow","block","block"]},
+  on:{note:"Full memory. The agent reads the wake view first and notes what is worth keeping.",
+       sys:"## Memory (OptMem)\nRead the wake view before you act. Call memo_note…", tools:["note","zoom","recall","nap"], guard:["allow","allow","block"]}
+};
+const $ = s => document.querySelector(s);
+function setMode(m){
+  document.body.dataset.mode = m;
+  document.querySelectorAll(".switch button").forEach(b => b.setAttribute("aria-pressed", b.dataset.set === m));
+  $("#statusMode").textContent = m; $("#machineFoot").textContent = "footer: mem:" + m;
+  $("#modeNote").textContent = MODES[m].note;
+  $("#lSysBody").textContent = MODES[m].sys;
+  $("#lSys").className = "layer " + (m === "off" ? "dim" : "lit");
+  $("#lWake").className = "layer " + (m === "off" ? "dim" : "lit");
+  $("#lTools").className = "layer " + (m === "off" ? "" : "lit");
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", MODES[m].tools.includes(c.dataset.t)));
+  MODES[m].guard.forEach((g, i) => { const el = $("#g" + (i + 1)); el.textContent = g === "allow" ? "✓ allow" : "✕ block"; el.className = g === "allow" ? "v-ok" : "v-no"; });
+  renderPacket(m); renderGuard();
+}
+document.querySelectorAll(".switch button").forEach(b => b.onclick = () => setMode(b.dataset.set));
+
+function renderPacket(m){
+  const off = m === "off";
+  const t = MODES[m].tools.map(x => "memo_" + x).join(", ") || "no memo tools";
+  const rows = [
+    ["system", '<span class="sys">You are Pi…</span>'],
+    ["", off ? '<span class="gone">## Memory (OptMem)</span>' : '<span class="hl">' + MODES[m].sys.split("\n")[0] + "</span>"],
+    ["tools", 'bash, read, edit, write, <span class="' + (off ? "gone" : "hl") + '">' + t + "</span>"],
+    ["message 0", off ? '<span class="gone">&lt;optmem-wake&gt; … &lt;/optmem-wake&gt;</span>' : '<span class="hl">&lt;optmem-wake&gt; #0-15 … #16-23 … &lt;/optmem-wake&gt;</span> ← added now, never saved'],
+    ["message 1", "user: fix the flaky test in pi-topology"],
+    ["saved", '<span class="gone">old wake copies</span> ← stripped from requests and summaries']
+  ];
+  $("#packet").innerHTML = rows.map(([l, v]) => `<div class="row"><span class="lbl">${l}</span><span>${v}</span></div>`).join("");
+}
+let stage = 0;
+setInterval(() => { document.querySelectorAll(".stage").forEach((s, i) => s.classList.toggle("hot", i === stage)); stage = (stage + 1) % 4; }, 1600);
+
+/* memory tree */
+const TREE = {id:"0-31", text:"Iury: Android GDE in Berlin; builds his own Pi harness.", kids:[
+  {id:"0-15", text:"Personal: marathon training, podcast, Brazilian in Berlin.", kids:[
+    {id:"0-7", text:"Training for an autumn marathon; long runs on Sundays.", kids:[{id:"3", text:"Prefers morning runs before 8."},{id:"5", text:"Recovery week planning: see vault Running/Plan.md."}]},
+    {id:"8-15", text:"Co-hosts a podcast; records every other week.", kids:[{id:"9", text:"Episode notes live in vault Podcast/."},{id:"12", text:"Likes tea, not coffee, while recording."}]}]},
+  {id:"16-31", text:"pi-extensions: private root, scoped child packages.", kids:[
+    {id:"16-23", text:"Single root lockfile; subtree imports, no submodules.", kids:[{id:"18", text:"Run npm ci then npm run check before commits."},{id:"21", text:"Subagents patch must be reapplied after install."}]},
+    {id:"24-31", text:"pi-optmem: per-session memory, reviewed three times.", kids:[{id:"26", text:"Bash guard fails closed after review finding."},{id:"30", text:"Wake view is request-local; shipped."}]}]}
+]};
+let visible, opened;
+function resetTree(){ visible = [TREE.kids[0], TREE.kids[1]]; opened = new Set(); renderWake(); }
+function renderWake(){
+  const w = $("#wake"); w.innerHTML = '<div class="hd">$ memo wake  # 2 lines, ' + (visible.length) + ' visible</div>';
+  visible.forEach((n, i) => {
+    const b = document.createElement("button");
+    b.className = "node" + (n.kids ? "" : " leaf");
+    b.innerHTML = `<span class="id">#${n.id}</span><span></span>`; b.lastChild.textContent = n.text;
+    if (n.kids) { b.title = "memo_zoom " + n.id; b.onclick = () => { visible.splice(i, 1, ...n.kids); opened.add(n.id); renderWake(); }; }
+    else b.setAttribute("tabindex", "-1");
+    w.appendChild(b);
+  });
+  renderSvg();
+}
+function renderSvg(){
+  const svg = $("#svgtree"); const rows = []; const walk = (n, d, x0, x1) => { (rows[d] ||= []).push({n, x:(x0 + x1) / 2}); if (n.kids) { const m = (x0 + x1) / 2; walk(n.kids[0], d + 1, x0, m); walk(n.kids[1], d + 1, m, x1); } };
+  walk(TREE, 0, 0, 360);
+  let out = "";
+  rows.forEach((r, d) => r.forEach(({n, x}) => { if (n.kids) n.kids.forEach((k, j) => { const cx = rows[d + 1].find(e => e.n === k).x; out += `<path d="M${x} ${d * 62 + 30} C ${x} ${d * 62 + 48}, ${cx} ${d * 62 + 44}, ${cx} ${(d + 1) * 62 + 12}"/>`; }); }));
+  rows.forEach((r, d) => r.forEach(({n, x}) => {
+    const isVisible = visible.includes(n), isOpen = opened.has(n.id) || n === TREE;
+    const w = d === 3 ? 34 : 54;
+    out += `<g class="${isVisible ? "open" : ""}" opacity="${isVisible || isOpen ? 1 : .35}"><rect x="${x - w / 2}" y="${d * 62 + 12}" width="${w}" height="20" rx="5"/><text x="${x}" y="${d * 62 + 26}" text-anchor="middle">${n.id}</text></g>`;
+  }));
+  svg.innerHTML = out;
+}
+$("#resetTree").onclick = resetTree;
+$("#napBtn").onclick = () => {
+  resetTree();
+  const w = $("#wake");
+  const note = document.createElement("div"); note.style.cssText = "margin-top:14px;color:#ffcf66";
+  note.textContent = "memo: Compress memories 24-31 → agent calls memo_nap 24-31 \"pi-optmem shipped: guard fails closed, wake request-local.\"";
+  w.appendChild(note);
+};
+resetTree();
+
+/* timeline */
+const SCENES = [
+  {t:"Install memo once", x:"Run the installer. It pins upstream OptMem by commit and checksum, installs memo, and creates the memory store outside your vault.",
+   term:'<span class="p">$</span> packages/pi-optmem/scripts/install-memo.sh\n<span class="g">✓ sha256 verified</span>\n<span class="g">✓ installed ~/.local/share/optmem/memo</span>\n<span class="g">✓ memo init ~/.local/share/optmem/memory</span>', foot:""},
+  {t:"Morning: a personal session", x:"Start in the vault. Your folder rule says on, so the agent wakes with your memory and notes what matters.",
+   term:'<span class="p">~/vault $</span> pi\n<span class="p">resolved:</span> rule ~/dev/personal/obsidian-vault → <span class="y">on</span>\n<span class="p">wake:</span> 2 parts loaded\n\n<span class="p">agent ›</span> memo_note "Berlin lease renewal: see vault Housing/Lease.md"', foot:"mem:on"},
+  {t:"Work repo: look, don't write", x:"Client work should not leak into personal memory. Start read-only, so the agent knows you but leaves no trace.",
+   term:'<span class="p">~/work/app $</span> pi --memory-read\n<span class="p">tools:</span> memo_zoom, memo_recall\n\n<span class="p">agent ›</span> memo_note …\n<span class="r">✕ memo_note is not available in mem:read</span>', foot:"mem:read"},
+  {t:"Change your mind mid-session", x:"Switch with /memory. Tools and the bash guard change at once. The choice is saved on this branch, so /reload, /resume and /tree keep it.",
+   term:'<span class="p">›</span> /memory off\n<span class="b">mem:off.</span> Memo tools removed; wake view dropped from the next request.\n\n<span class="p">›</span> /reload\n<span class="p">resolved:</span> saved mode → <span class="b">off</span>  (the flag is not reapplied)', foot:"mem:off"},
+  {t:"Delegate to a subagent", x:"Child sessions run headless, so they count as subagents. They are capped at subagentMode, off by default, and cannot be switched on.",
+   term:'<span class="p">agent ›</span> Agent("You are a subagent. Don\'t run memo.")\n<span class="p">child:</span> mode print → subagent → <span class="b">off</span>\n<span class="p">child ›</span> /memory on\n<span class="r">Subagent sessions cannot go above mem:off.</span>', foot:"child mem:off"},
+  {t:"Long session: compaction", x:"When the context fills up, Pi compacts it. The summary never contains your memory, and the next request reloads a fresh wake view, even mid-run.",
+   term:'<span class="p">pi:</span> compacting (threshold)…\n<span class="p">summary input:</span> <span class="g">no &lt;optmem-wake&gt;</span>\n<span class="p">next request:</span> <span class="y">memo wake</span> → fresh view, reused after', foot:"mem:on"},
+  {t:"Tend the memory", x:"Use the leader menu or /memory to browse, search, set folder rules and run background naps.",
+   term:'<span class="p">›</span> /memory search lease\n#41 Berlin lease renewal: see vault Housing/Lease.md\n<span class="p">›</span> /memory rule read\n<span class="g">✓ ~/work → read</span>\n<span class="p">›</span> /memory naps\n<span class="g">✓ background compression started</span>', foot:"mem:on"}
+];
+let sc = 0;
+const track = $("#tlTrack");
+SCENES.forEach((s, i) => { const b = document.createElement("button"); b.setAttribute("aria-label", "Step " + (i + 1) + ": " + s.t); b.onclick = () => showScene(i); track.appendChild(b); });
+function showScene(i){
+  sc = (i + SCENES.length) % SCENES.length; const s = SCENES[sc];
+  $("#sceneStep").textContent = `Step ${sc + 1} of ${SCENES.length}`; $("#sceneTitle").textContent = s.t; $("#sceneText").textContent = s.x;
+  $("#sceneTerm").innerHTML = s.term + (s.foot ? `<span class="foot">${s.foot}</span>` : "");
+  [...track.children].forEach((b, j) => b.className = j < sc ? "done" : j === sc ? "cur" : "");
+}
+$("#prev").onclick = () => showScene(sc - 1); $("#next").onclick = () => showScene(sc + 1);
+showScene(0);
+
+/* bash guard preview (simplified) */
+const SAMPLES = ["memo wake", "MEMORY_DIR=/x memo recall tea", "python3 /tmp/memo.py zoom 0-1", "memo note \"likes tea\"", "memo wake; memo note x", "bash -c \"memo note x\"", "grep memo notes.md", "cat memo.txt", "ls -la"];
+SAMPLES.forEach(s => { const b = document.createElement("button"); b.textContent = s; b.onclick = () => { $("#cmd").value = s; renderGuard(); }; $("#samples").appendChild(b); });
+const isMemo = w => /(^|\/)memo(\.py)?$/.test(w.replace(/^['"]|['"]$/g, "")) || w.includes(".local/share/optmem");
+function guard(cmd, mode){
+  const words = cmd.trim().split(/\s+/).filter(Boolean);
+  const mentions = words.some(isMemo) || /(^|[\s"'`(;|&{])((\S*\/)?memo(\.py)?)(?=$|[\s"'`);|&}])/.test(cmd);
+  if (mode === "on") return {allow:true, why:"mem:on allows every memo command."};
+  if (!mentions) return {allow:true, why:"The command never mentions memo."};
+  if (mode === "off") return {allow:false, why:"mem:off blocks anything that mentions memo, even harmless commands."};
+  if (/[;&|<>$`(){}\\]|\b(if|then|for|while|do|eval|xargs|bash|sh)\b/.test(cmd)) return {allow:false, why:"Shell syntax around memo. The guard fails closed."};
+  let i = 0; while (i < words.length && /^[A-Za-z_]\w*=/.test(words[i])) i++;
+  if (/^python3?$/.test(words[i])) i++;
+  if (!isMemo(words[i] || "")) return {allow:false, why:"Memo is not the command being run."};
+  const sub = words[i + 1];
+  return ["wake", "zoom", "recall"].includes(sub) ? {allow:true, why:`A simple memo ${sub} is a read.`} : {allow:false, why:`memo ${sub || "(no subcommand)"} is not a read.`};
+}
+function renderGuard(){
+  const cmd = $("#cmd").value, cur = document.body.dataset.mode;
+  $("#verdicts").innerHTML = ["off", "read", "on"].map(m => { const g = guard(cmd, m); return `<div class="verdict ${g.allow ? "allow" : "block"}" style="${m === cur ? "outline:2px solid var(--mode)" : ""}">mem:${m}<b>${g.allow ? "Allowed" : "Blocked"}</b></div>`; }).join("");
+  $("#guardWhy").textContent = "In mem:" + cur + ": " + guard(cmd, cur).why;
+}
+$("#cmd").oninput = renderGuard;
+setMode("on");
+</script>
+</body>
+</html>
