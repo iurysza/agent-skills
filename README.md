@@ -58,8 +58,10 @@ Each skill sets one `metadata.category`, such as `development`, `visual-media` o
 
 | Skill | Invocation | Description |
 | --- | --- | --- |
+| [`article-explainer`](skills/article-explainer/SKILL.md) | model-invoked | Turn an article or paper into one self-contained HTML explainer built around a scroll-built diagram. |
 | [`better-ui`](skills/better-ui/SKILL.md) | model-invoked | Polish interface surfaces, motion, icons, and micro-interactions. |
 | [`frontend-design`](skills/frontend-design/SKILL.md) | model-invoked | Give new or reworked UI a deliberate visual direction instead of a templated look. |
+| [`interactive-explainer`](skills/interactive-explainer/SKILL.md) | model-invoked | Build a playable HTML explainer for a tool or system, with a live model and a try-it lab. |
 
 ### Writing
 

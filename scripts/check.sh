@@ -26,6 +26,7 @@ import ast
 from pathlib import Path
 
 for path in (
+    Path("skills/article-explainer/scripts/embed-fonts.py"),
     Path("skills/chatgpt-imagegen/scripts/generate_image.py"),
     Path("skills/gemini-tts/scripts/generate_tts.py"),
     Path("skills/gemini-tts/scripts/test_generate_tts.py"),
