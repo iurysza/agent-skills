@@ -67,12 +67,10 @@ Each skill sets one `metadata.category`, such as `development`, `visual-media` o
 
 | Skill | Invocation | Description |
 | --- | --- | --- |
-| [`bro`](skills/bro/SKILL.md) | user-invoked | Restate the previous response plainly and concisely. |
-| [`deslopify`](skills/deslopify/SKILL.md) | model-invoked | Remove generic AI mannerisms while preserving voice. |
+| [`bro`](skills/bro/SKILL.md) | user-invoked | Restate a response plainly, turn a review into a casual reply, or proofread supplied text. |
 | [`readback`](skills/readback/SKILL.md) | model-invoked | Restate the user's intended outcome and constraints before work begins. |
-| [`rephrase`](skills/rephrase/SKILL.md) | user-invoked | Tighten rough text while preserving sentiment and voice. |
-| [`strunk-writing-quality`](skills/strunk-writing-quality/SKILL.md) | model-invoked | Edit prose for clarity and concision. |
 | [`technical-writing`](skills/technical-writing/SKILL.md) | model-invoked | Apply layered standards to technical documentation and engineering prose. |
+| [`writing`](skills/writing/SKILL.md) | model-invoked | Plain English for all prose: no AI tells, GOV.UK style, four-part stakeholder updates. |
 
 ### Media
 

@@ -19,7 +19,7 @@ Load relevant skills when they are available. Useful options include:
 - `technical-writing` for structure and plain language
 - `mermaid-diagrams` for visual explanations
 - `coding-standards` for boundaries, dependencies, and failures
-- `deslopify` or `unslop` for editing
+- `writing` for editing
 - a knowledge-base skill for navigation and progressive disclosure
 
 These skills offer methods, not mandatory deliverables. Use only what helps. Do not install missing skills or block the work because one is unavailable.

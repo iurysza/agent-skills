@@ -26,18 +26,24 @@ Plannotator is licensed under MIT OR Apache-2.0.
 
 ## The Elements of Style
 
-`strunk-writing-quality` adapts principles and examples from *The Elements of Style* by William Strunk Jr., first published in 1918 and in the public domain in the United States.
+`writing` adapts principles and examples from *The Elements of Style* by William Strunk Jr., first published in 1918 and in the public domain in the United States.
 
 Source: <https://www.gutenberg.org/ebooks/37134>
 
 ## GOV.UK content design guidance
 
-`skills/strunk-writing-quality/references/report-writing-style.md` adapts GOV.UK and Government Digital Service content guidance.
+`writing` and `skills/writing/references/report-style.md` adapt GOV.UK and Government Digital Service content guidance.
 
 Contains public sector information licensed under the Open Government Licence v3.0.
 
 - Source: <https://www.gov.uk/guidance/content-design/writing-for-gov-uk>
 - Licence: <https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/>
+
+## Signs of AI writing
+
+`writing` follows the category names in Wikipedia's "Signs of AI writing" for its list of AI-writing patterns. No text is copied.
+
+- Source: <https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing> (CC BY-SA 4.0)
 
 ## Anthropic skills
 
