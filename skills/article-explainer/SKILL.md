@@ -100,7 +100,7 @@ Write like the reference. It is plain and declarative, and every sentence does o
 - **Speak to the reader as "you".** "Your job is the outermost loop."
 - **Give each section one line to remember.** "Fix the harness, not the code." "AGENTS.md asks nicely. A hook checks."
 - **Be honest.** Mark claims you can't verify, say what the author leaves open, and credit the author's model on the diagram itself.
-- **Use sentence case, no filler and no sales words.** No "dive into", "unlock" or "powerful". Run the `unslop` skill on the copy.
+- **Use sentence case, no filler and no sales words.** No "dive into", "unlock" or "powerful". Run the `writing` skill on the copy.
 
 ## Output
 
